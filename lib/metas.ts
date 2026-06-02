@@ -37,7 +37,7 @@ export const VENDEDORES: VendedorConfig[] = [
     regiao: 3,
     carteira: {
       apiNome: "REGIAO 3 CARTEIRA",
-      meta: 128270,
+      meta: 130000,
       superMeta: 134683.5,
       metaAmolim: 142091.09,
     },
