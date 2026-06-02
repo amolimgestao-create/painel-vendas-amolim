@@ -229,32 +229,19 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-900 p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setEtapa("login")}
-              className="text-slate-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <h1 className="text-white font-bold text-xl">Atualizar Metas</h1>
-              <p className="text-slate-400 text-xs mt-0.5">
-                Edite os valores e clique em Salvar — o painel atualiza em ~2 minutos
-              </p>
-            </div>
-          </div>
+        <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={handleSalvar}
-            disabled={status === "salvando"}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            onClick={() => setEtapa("login")}
+            className="text-slate-400 hover:text-white transition-colors"
           >
-            {status === "salvando" ? (
-              <><Loader2 size={16} className="animate-spin" /> Salvando...</>
-            ) : (
-              <><Save size={16} /> Salvar metas</>
-            )}
+            <ArrowLeft size={18} />
           </button>
+          <div>
+            <h1 className="text-white font-bold text-xl">Atualizar Metas</h1>
+            <p className="text-slate-400 text-xs mt-0.5">
+              Edite os valores e clique em Salvar — o painel atualiza em ~2 minutos
+            </p>
+          </div>
         </div>
 
         {status === "erro" && (
