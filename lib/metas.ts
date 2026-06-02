@@ -12,7 +12,7 @@ export type VendedorConfig = {
   leads: { apiNome: string } & MetaNivel
 }
 
-// Metas referência: Maio 2026 — atualizar em lib/metas.ts a cada mês
+// Metas referência: junho de 2026 — atualizado via painel admin
 export const VENDEDORES: VendedorConfig[] = [
   {
     id: "natalia",
@@ -37,7 +37,7 @@ export const VENDEDORES: VendedorConfig[] = [
     regiao: 3,
     carteira: {
       apiNome: "REGIAO 3 CARTEIRA",
-      meta: 128270,
+      meta: 130000,
       superMeta: 134683.5,
       metaAmolim: 142091.09,
     },
