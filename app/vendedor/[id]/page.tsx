@@ -218,107 +218,109 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
             />
           </div>
 
-          {/* Gráfico cumulativo */}
+          {/* Gráficos separados: Carteira e Leads */}
           {chartData.length > 0 && (
-            <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-white">
-                  Evolução acumulada — {formatarMesAno(mesAtual.criacaoIni.substring(0, 7))}
-                </h2>
-                <div className="text-xs text-slate-400">
-                  Meta: {formatarMoeda(config.carteira.meta + config.leads.meta)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Gráfico Carteira */}
+              <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-semibold text-white">Carteira — evolução acumulada</h2>
+                  <div className="text-xs text-slate-400">Meta: {formatarMoeda(config.carteira.meta)}</div>
                 </div>
+                <ResponsiveContainer width="100%" height={240}>
+                  <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      stroke="#64748b"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                      width={55}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v, name) => [
+                        formatarMoeda(Number(v)),
+                        name === "acumuladoCarteira" ? "Carteira acum." : "Meta esperada",
+                      ]}
+                      labelFormatter={(v) => `Dia ${v}`}
+                    />
+                    <ReferenceLine
+                      y={config.carteira.meta}
+                      stroke="#22c55e"
+                      strokeDasharray="6 3"
+                      strokeOpacity={0.4}
+                      label={{ value: "Meta", fill: "#22c55e", fontSize: 10, position: "insideTopRight" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="acumuladoCarteira"
+                      fill="#3b82f6"
+                      fillOpacity={0.6}
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="metaCarteiraPace"
+                      stroke="#22c55e"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
 
-              <ResponsiveContainer width="100%" height={300}>
-                <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis
-                    dataKey="dia"
-                    stroke="#64748b"
-                    tick={{ fontSize: 11 }}
-                    label={{ value: "Dia do mês", position: "insideBottom", offset: -2, fontSize: 11, fill: "#64748b" }}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    tick={{ fontSize: 11 }}
-                    tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
-                    width={60}
-                  />
-                  <Tooltip
-                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
-                    formatter={(v, name) => {
-                      const labels: Record<string, string> = {
-                        acumuladoCarteira: "Carteira",
-                        acumuladoLeads: "Leads",
-                        metaPace: "Meta esperada",
-                      }
-                      return [formatarMoeda(Number(v)), labels[name as string] || name]
-                    }}
-                    labelFormatter={(v) => `Dia ${v}`}
-                  />
-                  <Legend
-                    formatter={(value) => {
-                      const labels: Record<string, string> = {
-                        acumuladoCarteira: "Carteira",
-                        acumuladoLeads: "Leads",
-                        metaPace: "Meta esperada",
-                      }
-                      return <span style={{ color: "#94a3b8", fontSize: 12 }}>{labels[value] || value}</span>
-                    }}
-                  />
-
-                  {/* Referência meta total */}
-                  <ReferenceLine
-                    y={config.carteira.meta + config.leads.meta}
-                    stroke="#22c55e"
-                    strokeDasharray="6 3"
-                    strokeOpacity={0.5}
-                    label={{ value: "Meta", fill: "#22c55e", fontSize: 11, position: "insideTopRight" }}
-                  />
-
-                  {/* Áreas empilhadas: carteira + leads */}
-                  <Area
-                    type="monotone"
-                    dataKey="acumuladoCarteira"
-                    stackId="1"
-                    fill="#3b82f6"
-                    fillOpacity={0.7}
-                    stroke="#3b82f6"
-                    strokeWidth={0}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="acumuladoLeads"
-                    stackId="1"
-                    fill="#06b6d4"
-                    fillOpacity={0.7}
-                    stroke="#06b6d4"
-                    strokeWidth={0}
-                  />
-
-                  {/* Linha de ritmo esperado */}
-                  <Line
-                    type="monotone"
-                    dataKey="metaPace"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
-
-              <div className="mt-3 flex gap-4 justify-center text-xs text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-blue-500 inline-block" /> Carteira acum.
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-cyan-500 inline-block" /> Leads acum.
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-5 h-0.5 border-t-2 border-dashed border-green-500 inline-block" /> Meta esperada
-                </span>
+              {/* Gráfico Leads */}
+              <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-semibold text-white">Leads — evolução acumulada</h2>
+                  <div className="text-xs text-slate-400">Meta: {formatarMoeda(config.leads.meta)}</div>
+                </div>
+                <ResponsiveContainer width="100%" height={240}>
+                  <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      stroke="#64748b"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                      width={55}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v, name) => [
+                        formatarMoeda(Number(v)),
+                        name === "acumuladoLeads" ? "Leads acum." : "Meta esperada",
+                      ]}
+                      labelFormatter={(v) => `Dia ${v}`}
+                    />
+                    <ReferenceLine
+                      y={config.leads.meta}
+                      stroke="#22c55e"
+                      strokeDasharray="6 3"
+                      strokeOpacity={0.4}
+                      label={{ value: "Meta", fill: "#22c55e", fontSize: 10, position: "insideTopRight" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="acumuladoLeads"
+                      fill="#06b6d4"
+                      fillOpacity={0.6}
+                      stroke="#06b6d4"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="metaLeadsPace"
+                      stroke="#22c55e"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </div>
           )}
