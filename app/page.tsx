@@ -9,19 +9,11 @@ import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
 import Link from "next/link"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
-const MEDALHAS = ["🥇", "🥈", "🥉", "4º", "5º"]
-
 function statusCor(pct: number) {
   if (pct >= 100) return { bar: "bg-green-500", text: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/40" }
   if (pct >= 80) return { bar: "bg-yellow-400", text: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/40" }
   return { bar: "bg-red-500", text: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30" }
 }
-
-const NIVEIS = [
-  { key: "meta" as const, label: "Meta" },
-  { key: "superMeta" as const, label: "Super" },
-  { key: "metaAmolim" as const, label: "Amolim" },
-]
 
 function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
   const pct = Math.min(bucket.percentualMeta, 100)
@@ -61,33 +53,11 @@ function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
           </span>
         )}
       </div>
-
-      {/* Níveis de meta atingidos */}
-      {!semMeta && (
-        <div className="flex gap-1 pt-0.5">
-          {NIVEIS.map(({ key, label: nLabel }) => {
-            const alvo = bucket[key]
-            const ok = alvo > 0 && bucket.totalFaturado >= alvo
-            return (
-              <span
-                key={key}
-                className={`text-xs px-1.5 py-0.5 rounded font-semibold flex-1 text-center ${
-                  ok
-                    ? "bg-green-500/20 text-green-400"
-                    : "bg-slate-700/60 text-slate-500"
-                }`}
-              >
-                {ok ? "✓" : "–"} {nLabel}
-              </span>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }
 
-function CardVendedor({ stats, posicao }: { stats: VendedorStats; posicao: number }) {
+function CardVendedor({ stats }: { stats: VendedorStats }) {
   const cor = statusCor(stats.percentualMetaTotal)
   const ambosNaMeta = stats.carteira.percentualMeta >= 100 && stats.leads.percentualMeta >= 100
 
@@ -97,7 +67,6 @@ function CardVendedor({ stats, posicao }: { stats: VendedorStats; posicao: numbe
         {/* Header */}
         <div className={`px-5 py-3 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
           <div className="flex items-center gap-2">
-            <span className="text-lg">{MEDALHAS[posicao] || ""}</span>
             <span className="text-lg font-extrabold text-white">{stats.nomeExibicao}</span>
             <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">R{stats.regiao}</span>
           </div>
@@ -172,7 +141,7 @@ export default function PainelGeral() {
   )
 
   const stats = pedidos && !error
-    ? processarPedidos(pedidos).sort((a, b) => b.percentualMetaTotal - a.percentualMetaTotal)
+    ? processarPedidos(pedidos).sort((a, b) => a.regiao - b.regiao)
     : []
 
   const totalGeral = stats.reduce((acc, s) => acc + s.totalGeral, 0)
@@ -244,7 +213,7 @@ export default function PainelGeral() {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-            : stats.map((s, i) => <CardVendedor key={s.id} stats={s} posicao={i} />)}
+            : stats.map((s) => <CardVendedor key={s.id} stats={s} />)}
         </div>
 
         {/* Barra de progresso geral */}
