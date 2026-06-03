@@ -9,7 +9,7 @@ import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
 import Link from "next/link"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
-const MEDALHAS = ["🥇", "🥈", "🥉", ""]
+const MEDALHAS = ["🥇", "🥈", "🥉", "4º", "5º"]
 
 function statusCor(pct: number) {
   if (pct >= 100) return { bar: "bg-green-500", text: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/40" }
@@ -17,16 +17,25 @@ function statusCor(pct: number) {
   return { bar: "bg-red-500", text: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30" }
 }
 
+const NIVEIS = [
+  { key: "meta" as const, label: "Meta" },
+  { key: "superMeta" as const, label: "Super" },
+  { key: "metaAmolim" as const, label: "Amolim" },
+]
+
 function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
   const pct = Math.min(bucket.percentualMeta, 100)
   const cor = statusCor(bucket.percentualMeta)
   const atingiu = bucket.percentualMeta >= 100
+  const semMeta = bucket.meta === 0
 
   return (
     <div className="p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold tracking-widest text-slate-400">{label}</span>
-        {atingiu ? (
+        {semMeta ? (
+          <span className="text-xs text-slate-500">sem meta</span>
+        ) : atingiu ? (
           <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">META ✓</span>
         ) : (
           <span className={`text-xs font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>
@@ -39,19 +48,41 @@ function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
 
       <div className="w-full bg-slate-700 rounded-full h-2.5">
         <div
-          className={`h-2.5 rounded-full transition-all duration-700 ${cor.bar}`}
-          style={{ width: `${pct}%` }}
+          className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
+          style={{ width: semMeta ? 0 : `${pct}%` }}
         />
       </div>
 
       <div className="flex justify-between text-xs">
-        <span className="text-slate-500">Meta: {formatarMoeda(bucket.meta)}</span>
-        {!atingiu && (
+        <span className="text-slate-500">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
+        {!atingiu && !semMeta && (
           <span className={`font-semibold ${cor.text}`}>
             faltam {formatarMoeda(bucket.faltaParaMeta)}
           </span>
         )}
       </div>
+
+      {/* Níveis de meta atingidos */}
+      {!semMeta && (
+        <div className="flex gap-1 pt-0.5">
+          {NIVEIS.map(({ key, label: nLabel }) => {
+            const alvo = bucket[key]
+            const ok = alvo > 0 && bucket.totalFaturado >= alvo
+            return (
+              <span
+                key={key}
+                className={`text-xs px-1.5 py-0.5 rounded font-semibold flex-1 text-center ${
+                  ok
+                    ? "bg-green-500/20 text-green-400"
+                    : "bg-slate-700/60 text-slate-500"
+                }`}
+              >
+                {ok ? "✓" : "–"} {nLabel}
+              </span>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

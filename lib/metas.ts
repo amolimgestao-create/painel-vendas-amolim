@@ -15,6 +15,23 @@ export type VendedorConfig = {
 // Metas referência: junho de 2026 — atualizado via painel admin
 export const VENDEDORES: VendedorConfig[] = [
   {
+    id: "industria",
+    nomeExibicao: "Indústria",
+    regiao: 0,
+    carteira: {
+      apiNome: "REGIAO 0 CARTEIRA",
+      meta: 0,
+      superMeta: 0,
+      metaAmolim: 0,
+    },
+    leads: {
+      apiNome: "VENDEDOR INDUSTRIA 02",
+      meta: 0,
+      superMeta: 0,
+      metaAmolim: 0,
+    },
+  },
+  {
     id: "natalia",
     nomeExibicao: "Natalia",
     regiao: 1,
