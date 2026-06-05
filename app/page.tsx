@@ -29,7 +29,7 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 function statusCor(pct: number) {
   if (pct >= 100) return { bar: "bg-green-500", text: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/40" }
   if (pct >= 80) return { bar: "bg-yellow-400", text: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/40" }
-  return { bar: "bg-red-500", text: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30" }
+  return { bar: "bg-[#2E7D32]", text: "text-[#66BB6A]", bg: "bg-[#2E7D32]/10", border: "border-[#2E7D32]/40" }
 }
 
 function buildTeamChart(
@@ -205,8 +205,8 @@ export default function PainelGeral() {
     else document.exitFullscreen()
   }
 
-  const corPct = pctGeral >= 100 ? "text-green-400" : pctGeral >= 80 ? "text-yellow-400" : "text-red-400"
-  const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-red-500"
+  const corPct = pctGeral >= 100 ? "text-green-400" : pctGeral >= 80 ? "text-yellow-400" : "text-[#66BB6A]"
+  const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-[#2E7D32]"
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
@@ -257,7 +257,7 @@ export default function PainelGeral() {
 
       <main className="flex-1 p-6 space-y-5">
         {error && (
-          <div className="text-center text-red-400 py-20 text-lg">
+          <div className="text-center text-[#66BB6A] py-20 text-lg">
             Erro ao carregar dados da API. Verifique a conexão com o servidor.
           </div>
         )}

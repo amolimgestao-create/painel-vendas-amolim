@@ -172,10 +172,10 @@ export default function AdminPage() {
                 placeholder="••••••••"
                 autoFocus
                 className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                  senhaErro ? "border-red-500" : "border-slate-700"
+                  senhaErro ? "border-[#2E7D32]" : "border-slate-700"
                 }`}
               />
-              {senhaErro && <p className="text-red-400 text-xs mt-1">Senha incorreta.</p>}
+              {senhaErro && <p className="text-[#66BB6A] text-xs mt-1">Senha incorreta.</p>}
             </div>
             <button
               type="submit"
@@ -245,7 +245,7 @@ export default function AdminPage() {
         </div>
 
         {status === "erro" && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-6 text-red-400 text-sm">
+          <div className="flex items-center gap-2 bg-[#2E7D32]/10 border border-[#2E7D32]/40 rounded-xl px-4 py-3 mb-6 text-[#66BB6A] text-sm">
             <AlertCircle size={16} />
             {erroMsg}
           </div>

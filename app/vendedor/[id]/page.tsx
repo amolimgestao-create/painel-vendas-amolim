@@ -57,7 +57,7 @@ function KpiCard({
       : destaque === "amarelo"
       ? "text-yellow-400"
       : destaque === "vermelho"
-      ? "text-red-400"
+      ? "text-[#66BB6A]"
       : "text-slate-400"
 
   return (
@@ -162,7 +162,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
           <div className="text-right">
             <div className="text-xs text-slate-400 mb-1">Total {formatarMesAno(mesAtual.criacaoIni.substring(0, 7))}</div>
             <div className={`text-4xl font-black ${
-              pctTotal >= 100 ? "text-green-400" : pctTotal >= 80 ? "text-yellow-400" : "text-red-400"
+              pctTotal >= 100 ? "text-green-400" : pctTotal >= 80 ? "text-yellow-400" : "text-[#66BB6A]"
             }`}>
               {pctTotal.toFixed(1)}%
             </div>
@@ -341,12 +341,12 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
                   ? "bg-green-500"
                   : b.percentualMeta >= 80
                   ? "bg-yellow-400"
-                  : "bg-red-500"
+                  : "bg-[#2E7D32]"
               return (
                 <div key={label} className="bg-slate-800 rounded-2xl p-5 border border-slate-700 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white text-sm tracking-wider">{label.toUpperCase()}</span>
-                    <span className={`text-sm font-bold ${b.percentualMeta >= 100 ? "text-green-400" : b.percentualMeta >= 80 ? "text-yellow-400" : "text-red-400"}`}>
+                    <span className={`text-sm font-bold ${b.percentualMeta >= 100 ? "text-green-400" : b.percentualMeta >= 80 ? "text-yellow-400" : "text-[#66BB6A]"}`}>
                       {b.percentualMeta.toFixed(1)}%
                     </span>
                   </div>
@@ -364,7 +364,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
                     </div>
                     <div>
                       <p className="text-slate-400">{b.percentualMeta >= 100 ? "Excedente" : "Falta"}</p>
-                      <p className={`font-bold ${b.percentualMeta >= 100 ? "text-green-400" : "text-red-400"}`}>
+                      <p className={`font-bold ${b.percentualMeta >= 100 ? "text-green-400" : "text-[#66BB6A]"}`}>
                         {formatarMoeda(b.percentualMeta >= 100 ? b.totalFaturado - m.meta : b.faltaParaMeta)}
                       </p>
                     </div>
@@ -398,7 +398,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
                 <div>
                   <p className="text-xs text-slate-400 mb-1">Variação</p>
                   {variacao !== null ? (
-                    <p className={`text-lg font-bold ${variacao >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    <p className={`text-lg font-bold ${variacao >= 0 ? "text-green-400" : "text-[#66BB6A]"}`}>
                       {variacao >= 0 ? "+" : ""}{variacao.toFixed(1)}%
                     </p>
                   ) : (
