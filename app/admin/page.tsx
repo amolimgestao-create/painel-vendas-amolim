@@ -263,7 +263,7 @@ export default function AdminPage() {
                 </span>
               </div>
 
-              <div className="p-5 grid grid-cols-2 gap-5">
+              <div className={`p-5 grid gap-5 ${v.temLeads ? "grid-cols-2" : "grid-cols-1"}`}>
                 {/* Carteira */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -288,29 +288,31 @@ export default function AdminPage() {
                   />
                 </div>
 
-                {/* Leads */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block" />
-                    <span className="text-xs font-bold text-slate-300 tracking-wider">LEADS</span>
+                {/* Leads — oculto quando vendor não tem leads */}
+                {v.temLeads && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block" />
+                      <span className="text-xs font-bold text-slate-300 tracking-wider">LEADS</span>
+                    </div>
+                    <CampoMeta
+                      label="Meta"
+                      value={form[v.id].leads.meta}
+                      onChange={(val) => setField(v.id, "leads", "meta", val)}
+                      destaque
+                    />
+                    <CampoMeta
+                      label="Super Meta"
+                      value={form[v.id].leads.superMeta}
+                      onChange={(val) => setField(v.id, "leads", "superMeta", val)}
+                    />
+                    <CampoMeta
+                      label="Meta Amolim"
+                      value={form[v.id].leads.metaAmolim}
+                      onChange={(val) => setField(v.id, "leads", "metaAmolim", val)}
+                    />
                   </div>
-                  <CampoMeta
-                    label="Meta"
-                    value={form[v.id].leads.meta}
-                    onChange={(val) => setField(v.id, "leads", "meta", val)}
-                    destaque
-                  />
-                  <CampoMeta
-                    label="Super Meta"
-                    value={form[v.id].leads.superMeta}
-                    onChange={(val) => setField(v.id, "leads", "superMeta", val)}
-                  />
-                  <CampoMeta
-                    label="Meta Amolim"
-                    value={form[v.id].leads.metaAmolim}
-                    onChange={(val) => setField(v.id, "leads", "metaAmolim", val)}
-                  />
-                </div>
+                )}
               </div>
             </div>
           ))}

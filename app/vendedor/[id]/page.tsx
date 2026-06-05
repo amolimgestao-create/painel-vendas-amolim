@@ -103,6 +103,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
   const statsAnterior = pedidosAnterior ? processarPedidos(pedidosAnterior).find((s) => s.id === id) : null
 
   const isLoading = loadAtual || loadAnterior
+  const temLeads = config.temLeads
   const pctTotal = statsAtual?.percentualMetaTotal || 0
   const pctCarteira = statsAtual?.carteira.percentualMeta || 0
   const pctLeads = statsAtual?.leads.percentualMeta || 0
@@ -189,38 +190,40 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
               }
               destaque={corStatus(pctCarteira)}
             />
-            <KpiCard
-              titulo="Leads"
-              valor={formatarMoeda(statsAtual?.leads.totalFaturado || 0)}
-              sub={
-                pctLeads >= 100
-                  ? "META ATINGIDA ✓"
-                  : `${pctLeads.toFixed(1)}% — faltam ${formatarMoeda(statsAtual?.leads.faltaParaMeta || 0)}`
-              }
-              destaque={corStatus(pctLeads)}
-            />
+            {temLeads && (
+              <KpiCard
+                titulo="Leads"
+                valor={formatarMoeda(statsAtual?.leads.totalFaturado || 0)}
+                sub={
+                  pctLeads >= 100
+                    ? "META ATINGIDA ✓"
+                    : `${pctLeads.toFixed(1)}% — faltam ${formatarMoeda(statsAtual?.leads.faltaParaMeta || 0)}`
+                }
+                destaque={corStatus(pctLeads)}
+              />
+            )}
             <KpiCard
               titulo="Ticket Médio"
               valor={formatarMoeda(
                 statsAtual
                   ? (statsAtual.carteira.ticketMedio * statsAtual.carteira.numeroPedidos +
-                      statsAtual.leads.ticketMedio * statsAtual.leads.numeroPedidos) /
-                      Math.max(statsAtual.carteira.numeroPedidos + statsAtual.leads.numeroPedidos, 1)
+                      (temLeads ? statsAtual.leads.ticketMedio * statsAtual.leads.numeroPedidos : 0)) /
+                      Math.max(statsAtual.carteira.numeroPedidos + (temLeads ? statsAtual.leads.numeroPedidos : 0), 1)
                   : 0
               )}
-              sub={`${(statsAtual?.carteira.numeroPedidos || 0) + (statsAtual?.leads.numeroPedidos || 0)} pedidos`}
+              sub={`${(statsAtual?.carteira.numeroPedidos || 0) + (temLeads ? (statsAtual?.leads.numeroPedidos || 0) : 0)} pedidos`}
             />
             <KpiCard
               titulo="Total Geral"
               valor={formatarMoeda(statsAtual?.totalGeral || 0)}
-              sub={`meta ${formatarMoeda(config.carteira.meta + config.leads.meta)}`}
+              sub={`meta ${formatarMoeda(config.carteira.meta + (temLeads ? config.leads.meta : 0))}`}
               destaque={corStatus(pctTotal)}
             />
           </div>
 
-          {/* Gráficos separados: Carteira e Leads */}
+          {/* Gráficos: Carteira (sempre) + Leads (se temLeads) */}
           {chartData.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`grid grid-cols-1 ${temLeads ? "md:grid-cols-2" : ""} gap-4`}>
               {/* Gráfico Carteira */}
               <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
@@ -272,8 +275,8 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
                 </ResponsiveContainer>
               </div>
 
-              {/* Gráfico Leads */}
-              <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
+              {/* Gráfico Leads — só se temLeads */}
+              {temLeads && <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-sm font-semibold text-white">Leads — evolução acumulada</h2>
                   <div className="text-xs text-slate-400">Meta: {formatarMoeda(config.leads.meta)}</div>
@@ -321,7 +324,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
-              </div>
+              </div>}
             </div>
           )}
 
@@ -329,7 +332,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { label: "Carteira", stats: statsAtual?.carteira, meta: config.carteira },
-              { label: "Leads", stats: statsAtual?.leads, meta: config.leads },
+              ...(temLeads ? [{ label: "Leads", stats: statsAtual?.leads, meta: config.leads }] : []),
             ].map(({ label, stats: b, meta: m }) => {
               if (!b) return null
               const pct = Math.min(b.percentualMeta, 100)

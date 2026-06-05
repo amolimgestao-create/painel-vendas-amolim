@@ -8,6 +8,7 @@ export type VendedorConfig = {
   id: string
   nomeExibicao: string
   regiao: number
+  temLeads: boolean
   carteira: { apiNome: string } & MetaNivel
   leads: { apiNome: string } & MetaNivel
 }
@@ -18,6 +19,7 @@ export const VENDEDORES: VendedorConfig[] = [
     id: "industria",
     nomeExibicao: "Indústria",
     regiao: 0,
+    temLeads: false,
     carteira: {
       apiNome: "REGIAO 0 CARTEIRA",
       meta: 0,
@@ -25,7 +27,7 @@ export const VENDEDORES: VendedorConfig[] = [
       metaAmolim: 0,
     },
     leads: {
-      apiNome: "VENDEDOR INDUSTRIA 02",
+      apiNome: "",
       meta: 0,
       superMeta: 0,
       metaAmolim: 0,
@@ -35,6 +37,7 @@ export const VENDEDORES: VendedorConfig[] = [
     id: "natalia",
     nomeExibicao: "Natalia",
     regiao: 1,
+    temLeads: true,
     carteira: {
       apiNome: "REGIAO 1 CARTEIRA",
       meta: 120512,
@@ -52,6 +55,7 @@ export const VENDEDORES: VendedorConfig[] = [
     id: "debora",
     nomeExibicao: "Débora",
     regiao: 2,
+    temLeads: true,
     carteira: {
       apiNome: "REGIAO 2 CARTEIRA",
       meta: 6300,
@@ -69,6 +73,7 @@ export const VENDEDORES: VendedorConfig[] = [
     id: "kelly",
     nomeExibicao: "Kelly",
     regiao: 3,
+    temLeads: true,
     carteira: {
       apiNome: "REGIAO 3 CARTEIRA",
       meta: 128270,

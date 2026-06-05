@@ -8,6 +8,10 @@ function processarBucket(
   superMeta: number,
   metaAmolim: number
 ): BucketStats {
+  if (!apiNome) {
+    return { apiNome, meta, superMeta, metaAmolim, totalFaturado: 0, percentualMeta: 0, numeroPedidos: 0, ticketMedio: 0, faltaParaMeta: meta, vendasPorDia: [] }
+  }
+
   const lista = pedidos.filter(
     (p) => p.Vendedor?.toUpperCase() === apiNome.toUpperCase()
   )

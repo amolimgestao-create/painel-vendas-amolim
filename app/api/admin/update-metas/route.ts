@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { VENDEDORES } from "@/lib/metas"
 
 type BucketInput = {
   meta: number
@@ -15,23 +16,32 @@ type VendedorInput = {
 }
 
 function gerarConteudoMetas(vendedores: VendedorInput[]): string {
-  const linhas = vendedores.map((v) => `  {
+  const linhas = vendedores.map((v) => {
+    // Preserva apiNome e temLeads do config atual — nunca sobrescreve estrutura via admin
+    const cfg = VENDEDORES.find((c) => c.id === v.id)
+    const temLeads = cfg?.temLeads ?? true
+    const carteiraApiNome = cfg?.carteira.apiNome ?? `REGIAO ${v.regiao} CARTEIRA`
+    const leadsApiNome = cfg?.leads.apiNome ?? (temLeads ? `REGIAO ${v.regiao} LEADS` : "")
+
+    return `  {
     id: "${v.id}",
     nomeExibicao: "${v.nomeExibicao}",
     regiao: ${v.regiao},
+    temLeads: ${temLeads},
     carteira: {
-      apiNome: "REGIAO ${v.regiao} CARTEIRA",
+      apiNome: "${carteiraApiNome}",
       meta: ${v.carteira.meta},
       superMeta: ${v.carteira.superMeta},
       metaAmolim: ${v.carteira.metaAmolim},
     },
     leads: {
-      apiNome: "REGIAO ${v.regiao} LEADS",
+      apiNome: "${leadsApiNome}",
       meta: ${v.leads.meta},
       superMeta: ${v.leads.superMeta},
       metaAmolim: ${v.leads.metaAmolim},
     },
-  }`).join(",\n")
+  }`
+  }).join(",\n")
 
   const mesRef = new Date().toLocaleString("pt-BR", { month: "long", year: "numeric" })
 
@@ -45,6 +55,7 @@ export type VendedorConfig = {
   id: string
   nomeExibicao: string
   regiao: number
+  temLeads: boolean
   carteira: { apiNome: string } & MetaNivel
   leads: { apiNome: string } & MetaNivel
 }
