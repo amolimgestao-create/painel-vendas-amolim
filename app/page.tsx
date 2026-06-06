@@ -299,7 +299,7 @@ export default function PainelGeral() {
         })()}
 
         {!isLoading && stats.length > 0 && (
-          <>
+          <div className="flex flex-col gap-3 flex-1 min-h-0">
             {/* Barra de progresso geral */}
             <div className="bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700 shrink-0">
               <div className="flex justify-between items-center mb-1.5">
@@ -415,7 +415,7 @@ export default function PainelGeral() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </main>
 
