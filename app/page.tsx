@@ -209,7 +209,7 @@ export default function PainelGeral() {
   const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-[#2E7D32]"
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
+    <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
         <div>
@@ -264,7 +264,7 @@ export default function PainelGeral() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-5">
+      <main className="flex-1 min-h-0 px-5 py-4 flex flex-col gap-3 overflow-hidden">
         {error && (
           <div className="text-center text-[#66BB6A] py-20 text-lg">
             Erro ao carregar dados da API. Verifique a conexão com o servidor.
@@ -279,7 +279,7 @@ export default function PainelGeral() {
             n <= 6 ? "xl:grid-cols-3" :
             n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
           return (
-        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} gap-4`}>
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} gap-3 shrink-0`}>
           {isLoading
             ? Array.from({ length: VENDEDORES.length }).map((_, i) => <SkeletonCard key={i} />)
             : stats.map((s) => (
@@ -296,25 +296,25 @@ export default function PainelGeral() {
         {!isLoading && stats.length > 0 && (
           <>
             {/* Barra de progresso geral */}
-            <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700">
-              <div className="flex justify-between items-center mb-2">
+            <div className="bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700 shrink-0">
+              <div className="flex justify-between items-center mb-1.5">
                 <span className="text-sm text-slate-400 font-medium">Progresso geral da equipe</span>
                 <span className={`text-sm font-bold ${corPct}`}>
                   {formatarMoeda(totalGeral)} — {pctGeral.toFixed(1)}% da meta de {formatarMoeda(metaGeral)}
                 </span>
               </div>
-              <div className="w-full bg-slate-700 rounded-full h-3">
+              <div className="w-full bg-slate-700 rounded-full h-2.5">
                 <div
-                  className={`h-3 rounded-full transition-all duration-700 ${barPct}`}
+                  className={`h-2.5 rounded-full transition-all duration-700 ${barPct}`}
                   style={{ width: `${Math.min(pctGeral, 100)}%` }}
                 />
               </div>
             </div>
 
-            {/* Gráfico de progressão diária da equipe */}
+            {/* Gráfico de progressão diária da equipe — flex-1 ocupa espaço restante */}
             {teamChartData.length > 0 && (
-              <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
-                <div className="mb-4 flex items-start justify-between">
+              <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex-1 min-h-0 flex flex-col">
+                <div className="mb-2 flex items-start justify-between shrink-0">
                   <div>
                     <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
                     <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
@@ -331,7 +331,8 @@ export default function PainelGeral() {
                     </span>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
@@ -406,6 +407,7 @@ export default function PainelGeral() {
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
+                </div>
               </div>
             )}
           </>
