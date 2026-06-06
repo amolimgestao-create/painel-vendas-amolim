@@ -65,7 +65,7 @@ function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
   const semMeta = bucket.meta === 0
 
   return (
-    <div className="p-4 flex flex-col gap-2">
+    <div className="px-3 py-2 flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold tracking-widest text-slate-400">{label}</span>
         {semMeta ? (
@@ -76,12 +76,12 @@ function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
           <span className={`text-xs font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>
         )}
       </div>
-      <div className="text-2xl font-extrabold text-white leading-none">
+      <div className="text-xl font-extrabold text-white leading-none">
         {formatarMoeda(bucket.totalFaturado)}
       </div>
-      <div className="w-full bg-slate-700 rounded-full h-2.5">
+      <div className="w-full bg-slate-700 rounded-full h-1.5">
         <div
-          className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
+          className={`h-1.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
           style={{ width: semMeta ? 0 : `${pct}%` }}
         />
       </div>
@@ -104,19 +104,19 @@ function CardVendedor({ stats, temLeads }: { stats: VendedorStats; temLeads: boo
   return (
     <Link href={`/vendedor/${stats.id}`} className="block">
       <div className={`bg-slate-800 rounded-2xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-        <div className={`px-5 py-3 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
+        <div className={`px-4 py-2 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-extrabold text-white">{stats.nomeExibicao}</span>
+            <span className="text-base font-extrabold text-white">{stats.nomeExibicao}</span>
             <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">R{stats.regiao}</span>
           </div>
           <div className="text-right">
-            <div className={`text-xl font-black ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</div>
+            <div className={`text-lg font-black ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</div>
             <div className="text-xs text-slate-400">do total</div>
           </div>
         </div>
 
-        <div className="px-5 py-3 flex items-baseline gap-2 border-b border-slate-700/50">
-          <span className="text-3xl font-black text-white">{formatarMoeda(stats.totalGeral)}</span>
+        <div className="px-4 py-2 flex items-baseline gap-2 border-b border-slate-700/50">
+          <span className="text-2xl font-black text-white">{formatarMoeda(stats.totalGeral)}</span>
           <span className="text-sm text-slate-400">/ {formatarMoeda(stats.metaTotal)}</span>
           {naMeta && (
             <span className="ml-auto text-xs font-bold text-green-400 bg-green-500/15 px-2 py-1 rounded-lg">
@@ -216,7 +216,7 @@ export default function PainelGeral() {
   return (
     <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-8 py-4 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
+      <header className="flex items-center justify-between px-8 py-2.5 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur shrink-0">
         <div>
           <div style={{
             background: "radial-gradient(ellipse 120% 200% at 50% 50%, rgba(255,255,255,0.92) 25%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.08) 80%, transparent 100%)",
@@ -227,7 +227,7 @@ export default function PainelGeral() {
             <img
               src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
               alt="Amolim"
-              className="h-11 w-auto block"
+              className="h-9 w-auto block"
             />
           </div>
           <p className="text-xs text-slate-400 mt-1.5">
@@ -419,7 +419,7 @@ export default function PainelGeral() {
         )}
       </main>
 
-      <footer className="px-8 py-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-500">
+      <footer className="px-8 py-2 border-t border-slate-700 flex items-center justify-between text-xs text-slate-500 shrink-0">
         <span>Atualiza a cada {intervalo / 60000} minutos</span>
         <div className="flex items-center gap-5">
           <Link href="/supervisor" className="hover:text-slate-300 transition-colors">
