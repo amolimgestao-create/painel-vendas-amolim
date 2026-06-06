@@ -305,12 +305,25 @@ export default function PainelGeral() {
             {/* Gráfico de progressão diária da equipe */}
             {teamChartData.length > 0 && (
               <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
-                <div className="mb-4">
-                  <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
+                  </div>
+                  {/* Legenda */}
+                  <div className="flex items-center gap-4 text-xs text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={A_GREEN} strokeWidth="2" strokeDasharray="5 2" /></svg>
+                      Meta esperada
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <svg width="14" height="10"><rect x="0" y="1" width="14" height="8" rx="2" fill={A_BLUE_L} fillOpacity="0.7" /></svg>
+                      Realizado
+                    </span>
+                  </div>
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
-                  <ComposedChart data={teamChartData} margin={{ top: 8, right: 232, left: 10, bottom: 5 }}>
+                  <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
                     <YAxis
@@ -334,6 +347,14 @@ export default function PainelGeral() {
                       strokeOpacity={0.35}
                       label={{ value: "Meta", fill: A_GREEN, fontSize: 10, position: "insideTopRight" }}
                     />
+                    {/* Linha vertical no dia atual — label "Dia X" no topo */}
+                    <ReferenceLine
+                      x={diaAtual}
+                      stroke="#475569"
+                      strokeDasharray="3 3"
+                      strokeOpacity={0.5}
+                      label={{ value: `Dia ${diaAtual}`, fill: "white", fontSize: 11, fontWeight: "bold", position: "insideTopRight" }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="total"
@@ -344,30 +365,10 @@ export default function PainelGeral() {
                       dot={(dotProps: any) => {
                         if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
                         const totalVal = Number(dotProps.payload?.total ?? 0)
-                        const metaVal  = Number(dotProps.payload?.metaPace ?? 0)
-                        const dia      = dotProps.payload?.dia ?? dotProps.index + 1
-                        const bw = 214
-                        const bh = 66
-                        const bx = dotProps.cx + 14
-                        const by = Math.max(4, dotProps.cy - bh / 2)
                         return (
                           <g key={`d-${dotProps.index}`}>
-                            {/* Dot no fim da linha */}
                             <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
-                            {/* Caixa estilo tooltip */}
-                            <rect x={bx} y={by} width={bw} height={bh} rx={8} fill="#1e293b" stroke="#334155" strokeWidth={1} />
-                            {/* Título */}
-                            <text x={bx + 10} y={by + 17} fill="white" fontSize={11} fontWeight="700">Dia {dia}</text>
-                            {/* Separador */}
-                            <line x1={bx + 8} y1={by + 23} x2={bx + bw - 8} y2={by + 23} stroke="#334155" strokeWidth={0.5} />
-                            {/* Meta esperada */}
-                            <circle cx={bx + 12} cy={by + 37} r={3} fill={A_GREEN} />
-                            <text x={bx + 21} y={by + 41} fill="#94a3b8" fontSize={10}>Meta esperada</text>
-                            <text x={bx + bw - 8} y={by + 41} textAnchor="end" fill={A_GREEN} fontSize={10} fontWeight="600">{formatarMoeda(metaVal)}</text>
-                            {/* Realizado */}
-                            <circle cx={bx + 12} cy={by + 53} r={3} fill={A_BLUE_L} />
-                            <text x={bx + 21} y={by + 57} fill="#94a3b8" fontSize={10}>Realizado</text>
-                            <text x={bx + bw - 8} y={by + 57} textAnchor="end" fill={A_BLUE_L} fontSize={10} fontWeight="600">{formatarMoeda(totalVal)}</text>
+                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(totalVal)}</text>
                           </g>
                         )
                       }}
@@ -379,7 +380,16 @@ export default function PainelGeral() {
                       stroke={A_GREEN}
                       strokeWidth={2}
                       strokeDasharray="6 3"
-                      dot={false}
+                      dot={(dotProps: any) => {
+                        if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
+                        const metaVal = Number(dotProps.payload?.metaPace ?? 0)
+                        return (
+                          <g key={`d-${dotProps.index}`}>
+                            <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_GREEN} stroke="#0f172a" strokeWidth={2} />
+                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill={A_GREEN} fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
+                          </g>
+                        )
+                      }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
