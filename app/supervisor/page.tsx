@@ -111,6 +111,7 @@ export default function SupervisorPage() {
   const [aba, setAba]               = useState<Aba>("vendedores")
   const [senha, setSenha]           = useState("")
   const [senhaErro, setSenhaErro]   = useState(false)
+  const [loginando, setLoginando]   = useState(false)
 
   const [lista, setLista]           = useState<VendedorLocal[]>(VENDEDORES.map((v) => ({ ...v })))
   const [deletar, setDeletar]       = useState<Set<string>>(new Set())
@@ -242,11 +243,24 @@ export default function SupervisorPage() {
           </div>
 
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
               if (!senha.trim()) return
-              setEtapa("painel")
+              setLoginando(true)
               setSenhaErro(false)
+              try {
+                const res = await fetch("/api/admin/verify-password", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ password: senha }),
+                })
+                if (!res.ok) { setSenhaErro(true); return }
+                setEtapa("painel")
+              } catch {
+                setSenhaErro(true)
+              } finally {
+                setLoginando(false)
+              }
             }}
             className="flex flex-col gap-4"
           >
@@ -266,9 +280,10 @@ export default function SupervisorPage() {
             </div>
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-colors"
+              disabled={loginando}
+              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
-              Entrar
+              {loginando ? <><Loader2 size={16} className="animate-spin" /> Verificando...</> : "Entrar"}
             </button>
           </form>
 
