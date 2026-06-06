@@ -211,6 +211,8 @@ export default function SupervisorPage() {
       if (res.status === 401) {
         setStatus("erro")
         setErroMsg("Senha incorreta.")
+        setEtapa("login")
+        setSenhaErro(true)
         return
       }
       if (!res.ok) {
