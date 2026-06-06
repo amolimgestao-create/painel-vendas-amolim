@@ -87,4 +87,22 @@ export const VENDEDORES: VendedorConfig[] = [
       metaAmolim: 8308.13,
     },
   },
+  {
+    id: "evellyn",
+    nomeExibicao: "Evellyn",
+    regiao: 4,
+    temLeads: true,
+    carteira: {
+      apiNome: "REGIAO 4 CARTEIRA",
+      meta: 0,
+      superMeta: 0,
+      metaAmolim: 0,
+    },
+    leads: {
+      apiNome: "REGIAO 4 LEADS",
+      meta: 0,
+      superMeta: 0,
+      metaAmolim: 0,
+    },
+  },
 ]
