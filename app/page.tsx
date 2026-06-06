@@ -214,13 +214,12 @@ export default function PainelGeral() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
         <div>
-          <div className="bg-white rounded-xl px-4 py-2 inline-flex items-center">
-            <img
-              src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
-              alt="Amolim"
-              className="h-9 w-auto"
-            />
-          </div>
+          <img
+            src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
+            alt="Amolim"
+            className="h-12 w-auto"
+            style={{ filter: "invert(1) hue-rotate(180deg) brightness(1.05)" }}
+          />
           <p className="text-xs text-slate-400 mt-1.5">
             Painel Comercial — {criacaoIni.substring(0, 7).replace("-", "/")}
           </p>
