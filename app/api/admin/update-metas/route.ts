@@ -11,17 +11,21 @@ type VendedorInput = {
   id: string
   nomeExibicao: string
   regiao: number
+  // enviados pelo supervisor (add/remove/edit); opcionais para compatibilidade com /admin legado
+  temLeads?: boolean
+  carteiraApiNome?: string
+  leadsApiNome?: string
   carteira: BucketInput
   leads: BucketInput
 }
 
 function gerarConteudoMetas(vendedores: VendedorInput[]): string {
   const linhas = vendedores.map((v) => {
-    // Preserva apiNome e temLeads do config atual — nunca sobrescreve estrutura via admin
     const cfg = VENDEDORES.find((c) => c.id === v.id)
-    const temLeads = cfg?.temLeads ?? true
-    const carteiraApiNome = cfg?.carteira.apiNome ?? `REGIAO ${v.regiao} CARTEIRA`
-    const leadsApiNome = cfg?.leads.apiNome ?? (temLeads ? `REGIAO ${v.regiao} LEADS` : "")
+    // input tem precedência (supervisor pode alterar estrutura); fallback para cfg existente
+    const temLeads        = v.temLeads         !== undefined ? v.temLeads         : (cfg?.temLeads ?? true)
+    const carteiraApiNome = v.carteiraApiNome  || cfg?.carteira.apiNome || `REGIAO ${v.regiao} CARTEIRA`
+    const leadsApiNome    = v.leadsApiNome     !== undefined ? v.leadsApiNome     : (cfg?.leads.apiNome ?? (temLeads ? `REGIAO ${v.regiao} LEADS` : ""))
 
     return `  {
     id: "${v.id}",

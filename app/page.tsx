@@ -271,10 +271,17 @@ export default function PainelGeral() {
           </div>
         )}
 
-        {/* Cards dos vendedores */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* Cards dos vendedores — grid dinâmico para até 10 */}
+        {(() => {
+          const n = isLoading ? VENDEDORES.length : stats.length
+          const cols =
+            n <= 4 ? "xl:grid-cols-4" :
+            n <= 6 ? "xl:grid-cols-3" :
+            n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
+          return (
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} gap-4`}>
           {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+            ? Array.from({ length: VENDEDORES.length }).map((_, i) => <SkeletonCard key={i} />)
             : stats.map((s) => (
                 <CardVendedor
                   key={s.id}
@@ -283,6 +290,8 @@ export default function PainelGeral() {
                 />
               ))}
         </div>
+          )
+        })()}
 
         {!isLoading && stats.length > 0 && (
           <>
@@ -405,9 +414,14 @@ export default function PainelGeral() {
 
       <footer className="px-8 py-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-500">
         <span>Atualiza a cada {intervalo / 60000} minutos</span>
-        <Link href="/vendedor" className="hover:text-slate-300 transition-colors">
-          Ver painel individual →
-        </Link>
+        <div className="flex items-center gap-5">
+          <Link href="/supervisor" className="hover:text-slate-300 transition-colors">
+            Supervisor
+          </Link>
+          <Link href="/vendedor" className="hover:text-slate-300 transition-colors">
+            Ver painel individual →
+          </Link>
+        </div>
       </footer>
     </div>
   )
