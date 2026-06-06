@@ -353,7 +353,11 @@ export default function PainelGeral() {
                       stroke="#475569"
                       strokeDasharray="3 3"
                       strokeOpacity={0.5}
-                      label={{ value: `Dia ${diaAtual}`, fill: "white", fontSize: 11, fontWeight: "bold", position: "insideTopRight" }}
+                      label={(props: any) => (
+                        <text x={props.viewBox.x + 6} y={props.viewBox.y + 14} fill="white" fontSize={11} fontWeight="bold">
+                          {`Dia ${diaAtual}`}
+                        </text>
+                      )}
                     />
                     <Area
                       type="monotone"
@@ -386,7 +390,7 @@ export default function PainelGeral() {
                         return (
                           <g key={`d-${dotProps.index}`}>
                             <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_GREEN} stroke="#0f172a" strokeWidth={2} />
-                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill={A_GREEN} fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
+                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
                           </g>
                         )
                       }}
