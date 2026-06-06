@@ -11,14 +11,13 @@ import { VENDEDORES } from "@/lib/metas"
 import Link from "next/link"
 
 const ComposedChart = dynamic(() => import("recharts").then((m) => m.ComposedChart), { ssr: false })
-const Bar = dynamic(() => import("recharts").then((m) => m.Bar), { ssr: false })
+const Area = dynamic(() => import("recharts").then((m) => m.Area), { ssr: false })
 const Line = dynamic(() => import("recharts").then((m) => m.Line), { ssr: false })
 const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false })
 const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false })
 const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false })
 const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false })
 const ReferenceLine = dynamic(() => import("recharts").then((m) => m.ReferenceLine), { ssr: false })
-const LabelList = dynamic(() => import("recharts").then((m) => m.LabelList), { ssr: false })
 const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false })
 
 const A_BLUE = "#1565C0"
@@ -218,7 +217,7 @@ export default function PainelGeral() {
             src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
             alt="Amolim"
             className="h-12 w-auto"
-            style={{ filter: "invert(1) hue-rotate(180deg) brightness(1.05)" }}
+            style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.82) saturate(1.1)" }}
           />
           <p className="text-xs text-slate-400 mt-1.5">
             Painel Comercial — {criacaoIni.substring(0, 7).replace("-", "/")}
@@ -300,24 +299,12 @@ export default function PainelGeral() {
             {/* Gráfico de progressão diária da equipe */}
             {teamChartData.length > 0 && (
               <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
-                  </div>
-                  <div className="hidden sm:flex items-center gap-5 text-xs text-slate-400">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-4 h-3 rounded-sm inline-block opacity-85" style={{ backgroundColor: A_BLUE_L }} />
-                      Realizado
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-8 h-0 border-t-2 border-dashed inline-block" style={{ borderColor: A_GREEN }} />
-                      Meta esperada
-                    </span>
-                  </div>
+                <div className="mb-4">
+                  <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
                 </div>
-                <ResponsiveContainer width="100%" height={230}>
-                  <ComposedChart data={teamChartData} margin={{ top: 20, right: 15, left: 10, bottom: 5 }}>
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart data={teamChartData} margin={{ top: 8, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
                     <YAxis
@@ -341,19 +328,28 @@ export default function PainelGeral() {
                       strokeOpacity={0.35}
                       label={{ value: "Meta", fill: A_GREEN, fontSize: 10, position: "insideTopRight" }}
                     />
-                    <Bar
+                    <Area
+                      type="monotone"
                       dataKey="total"
-                      fill={A_BLUE_L}
-                      fillOpacity={0.85}
-                      radius={[3, 3, 0, 0]}
-                    >
-                      <LabelList
-                        dataKey="total"
-                        position="top"
-                        style={{ fontSize: 9, fill: "#94a3b8" }}
-                        formatter={(v) => { const n = Number(v); return n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n) }}
-                      />
-                    </Bar>
+                      fill={A_BLUE}
+                      fillOpacity={0.4}
+                      stroke={A_BLUE_L}
+                      strokeWidth={2}
+                      dot={(dotProps: any) => {
+                        if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
+                        const val = Number(dotProps.value)
+                        const txt = val >= 1000 ? `R$${(val / 1000).toFixed(0)}k` : `R$${val}`
+                        const bw = 64
+                        return (
+                          <g key={`d-${dotProps.index}`}>
+                            <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
+                            <rect x={dotProps.cx - bw - 8} y={dotProps.cy - 12} width={bw} height={22} rx={5} fill="#1e293b" stroke="#334155" strokeWidth={1} />
+                            <text x={dotProps.cx - bw / 2 - 8} y={dotProps.cy + 3} textAnchor="middle" fill="white" fontSize={11} fontWeight="600">{txt}</text>
+                          </g>
+                        )
+                      }}
+                      activeDot={{ r: 5, fill: A_BLUE_L, stroke: "#0f172a", strokeWidth: 2 }}
+                    />
                     <Line
                       type="monotone"
                       dataKey="metaPace"
