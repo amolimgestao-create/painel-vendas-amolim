@@ -354,7 +354,7 @@ export default function PainelGeral() {
                       strokeDasharray="3 3"
                       strokeOpacity={0.5}
                       label={(props: any) => (
-                        <text x={props.viewBox.x + 6} y={props.viewBox.y + 14} fill="white" fontSize={11} fontWeight="bold">
+                        <text x={props.viewBox.x + 6} y={-6} fill="white" fontSize={11} fontWeight="bold">
                           {`Dia ${diaAtual}`}
                         </text>
                       )}
