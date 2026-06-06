@@ -213,12 +213,18 @@ export default function PainelGeral() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
         <div>
-          <img
-            src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
-            alt="Amolim"
-            className="h-12 w-auto"
-            style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.82) saturate(1.1)" }}
-          />
+          <div style={{
+            background: "radial-gradient(ellipse 120% 200% at 50% 50%, rgba(255,255,255,0.92) 25%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.08) 80%, transparent 100%)",
+            borderRadius: "10px",
+            padding: "5px 14px",
+            display: "inline-block",
+          }}>
+            <img
+              src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
+              alt="Amolim"
+              className="h-11 w-auto block"
+            />
+          </div>
           <p className="text-xs text-slate-400 mt-1.5">
             Painel Comercial — {criacaoIni.substring(0, 7).replace("-", "/")}
           </p>
@@ -337,14 +343,31 @@ export default function PainelGeral() {
                       strokeWidth={2}
                       dot={(dotProps: any) => {
                         if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
-                        const val = Number(dotProps.value)
-                        const txt = val >= 1000 ? `R$${(val / 1000).toFixed(0)}k` : `R$${val}`
-                        const bw = 64
+                        const totalVal = Number(dotProps.payload?.total ?? 0)
+                        const metaVal  = Number(dotProps.payload?.metaPace ?? 0)
+                        const dia      = dotProps.payload?.dia ?? dotProps.index + 1
+                        const bw = 214
+                        const bh = 66
+                        const bx = dotProps.cx - bw - 14
+                        const by = Math.max(4, dotProps.cy - bh / 2)
                         return (
                           <g key={`d-${dotProps.index}`}>
+                            {/* Dot no fim da linha */}
                             <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
-                            <rect x={dotProps.cx - bw - 8} y={dotProps.cy - 12} width={bw} height={22} rx={5} fill="#1e293b" stroke="#334155" strokeWidth={1} />
-                            <text x={dotProps.cx - bw / 2 - 8} y={dotProps.cy + 3} textAnchor="middle" fill="white" fontSize={11} fontWeight="600">{txt}</text>
+                            {/* Caixa estilo tooltip */}
+                            <rect x={bx} y={by} width={bw} height={bh} rx={8} fill="#1e293b" stroke="#334155" strokeWidth={1} />
+                            {/* Título */}
+                            <text x={bx + 10} y={by + 17} fill="white" fontSize={11} fontWeight="700">Dia {dia}</text>
+                            {/* Separador */}
+                            <line x1={bx + 8} y1={by + 23} x2={bx + bw - 8} y2={by + 23} stroke="#334155" strokeWidth={0.5} />
+                            {/* Meta esperada */}
+                            <circle cx={bx + 12} cy={by + 37} r={3} fill={A_GREEN} />
+                            <text x={bx + 21} y={by + 41} fill="#94a3b8" fontSize={10}>Meta esperada</text>
+                            <text x={bx + bw - 8} y={by + 41} textAnchor="end" fill={A_GREEN} fontSize={10} fontWeight="600">{formatarMoeda(metaVal)}</text>
+                            {/* Realizado */}
+                            <circle cx={bx + 12} cy={by + 53} r={3} fill={A_BLUE_L} />
+                            <text x={bx + 21} y={by + 57} fill="#94a3b8" fontSize={10}>Realizado</text>
+                            <text x={bx + bw - 8} y={by + 57} textAnchor="end" fill={A_BLUE_L} fontSize={10} fontWeight="600">{formatarMoeda(totalVal)}</text>
                           </g>
                         )
                       }}
