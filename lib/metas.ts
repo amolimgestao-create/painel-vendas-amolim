@@ -94,9 +94,9 @@ export const VENDEDORES: VendedorConfig[] = [
     temLeads: false,
     carteira: {
       apiNome: "REGIAO 4 CARTEIRA",
-      meta: 0,
-      superMeta: 0,
-      metaAmolim: 0,
+      meta: 6300,
+      superMeta: 6615,
+      metaAmolim: 6978.83,
     },
     leads: {
       apiNome: "",
