@@ -310,7 +310,7 @@ export default function PainelGeral() {
                   <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
-                  <ComposedChart data={teamChartData} margin={{ top: 8, right: 20, left: 10, bottom: 5 }}>
+                  <ComposedChart data={teamChartData} margin={{ top: 8, right: 232, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
                     <YAxis
@@ -348,7 +348,7 @@ export default function PainelGeral() {
                         const dia      = dotProps.payload?.dia ?? dotProps.index + 1
                         const bw = 214
                         const bh = 66
-                        const bx = dotProps.cx - bw - 14
+                        const bx = dotProps.cx + 14
                         const by = Math.max(4, dotProps.cy - bh / 2)
                         return (
                           <g key={`d-${dotProps.index}`}>
