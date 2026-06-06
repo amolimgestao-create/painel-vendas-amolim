@@ -11,7 +11,7 @@ import { VENDEDORES } from "@/lib/metas"
 import Link from "next/link"
 
 const ComposedChart = dynamic(() => import("recharts").then((m) => m.ComposedChart), { ssr: false })
-const Area = dynamic(() => import("recharts").then((m) => m.Area), { ssr: false })
+const Bar = dynamic(() => import("recharts").then((m) => m.Bar), { ssr: false })
 const Line = dynamic(() => import("recharts").then((m) => m.Line), { ssr: false })
 const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false })
 const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false })
@@ -213,10 +213,14 @@ export default function PainelGeral() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
         <div>
-          <h1 className="text-2xl font-black tracking-widest leading-none" style={{ color: A_BLUE_L }}>
-            AMOLIM
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <div className="bg-white rounded-xl px-4 py-2 inline-flex items-center">
+            <img
+              src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
+              alt="Amolim"
+              className="h-9 w-auto"
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-1.5">
             Painel Comercial — {criacaoIni.substring(0, 7).replace("-", "/")}
           </p>
         </div>
@@ -303,7 +307,7 @@ export default function PainelGeral() {
                   </div>
                   <div className="hidden sm:flex items-center gap-5 text-xs text-slate-400">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-8 h-2 rounded inline-block opacity-70" style={{ backgroundColor: A_BLUE_L }} />
+                      <span className="w-4 h-3 rounded-sm inline-block opacity-85" style={{ backgroundColor: A_BLUE_L }} />
                       Realizado
                     </span>
                     <span className="flex items-center gap-1.5">
@@ -337,13 +341,11 @@ export default function PainelGeral() {
                       strokeOpacity={0.35}
                       label={{ value: "Meta", fill: A_GREEN, fontSize: 10, position: "insideTopRight" }}
                     />
-                    <Area
-                      type="monotone"
+                    <Bar
                       dataKey="total"
-                      fill={A_BLUE}
-                      fillOpacity={0.45}
-                      stroke={A_BLUE_L}
-                      strokeWidth={2}
+                      fill={A_BLUE_L}
+                      fillOpacity={0.85}
+                      radius={[3, 3, 0, 0]}
                     />
                     <Line
                       type="monotone"
