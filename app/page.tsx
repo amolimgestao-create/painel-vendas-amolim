@@ -18,6 +18,7 @@ const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: fals
 const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false })
 const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false })
 const ReferenceLine = dynamic(() => import("recharts").then((m) => m.ReferenceLine), { ssr: false })
+const LabelList = dynamic(() => import("recharts").then((m) => m.LabelList), { ssr: false })
 const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false })
 
 const A_BLUE = "#1565C0"
@@ -316,8 +317,8 @@ export default function PainelGeral() {
                     </span>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={210}>
-                  <ComposedChart data={teamChartData} margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
+                <ResponsiveContainer width="100%" height={230}>
+                  <ComposedChart data={teamChartData} margin={{ top: 20, right: 15, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
                     <YAxis
@@ -346,7 +347,14 @@ export default function PainelGeral() {
                       fill={A_BLUE_L}
                       fillOpacity={0.85}
                       radius={[3, 3, 0, 0]}
-                    />
+                    >
+                      <LabelList
+                        dataKey="total"
+                        position="top"
+                        style={{ fontSize: 9, fill: "#94a3b8" }}
+                        formatter={(v) => { const n = Number(v); return n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n) }}
+                      />
+                    </Bar>
                     <Line
                       type="monotone"
                       dataKey="metaPace"
