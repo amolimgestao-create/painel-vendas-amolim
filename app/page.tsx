@@ -65,32 +65,31 @@ function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
   const semMeta = bucket.meta === 0
 
   return (
-    <div className="px-3 py-2 flex flex-col gap-1">
+    <div className="px-2.5 py-1.5 flex flex-col gap-0.5">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold tracking-widest text-slate-400">{label}</span>
+        <span className="text-[10px] font-bold tracking-widest text-slate-400">{label}</span>
         {semMeta ? (
-          <span className="text-xs text-slate-500">sem meta</span>
+          <span className="text-[10px] text-slate-500">sem meta</span>
         ) : atingiu ? (
-          <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">META ✓</span>
+          <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full">META ✓</span>
         ) : (
-          <span className={`text-xs font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>
+          <span className={`text-[10px] font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>
         )}
       </div>
-      <div className="text-xl font-extrabold text-white leading-none">
+      <div className="text-base font-extrabold text-white leading-tight">
         {formatarMoeda(bucket.totalFaturado)}
       </div>
-      <div className="w-full bg-slate-700 rounded-full h-1.5">
+      <div className="w-full bg-slate-700 rounded-full h-1">
         <div
-          className={`h-1.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
+          className={`h-1 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
           style={{ width: semMeta ? 0 : `${pct}%` }}
         />
       </div>
-      <div className="flex justify-between text-xs">
-        <span className="text-slate-500">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
-        {!atingiu && !semMeta && (
-          <span className={`font-semibold ${cor.text}`}>faltam {formatarMoeda(bucket.faltaParaMeta)}</span>
-        )}
-      </div>
+      {!semMeta && !atingiu && (
+        <div className="text-[10px] text-slate-500 truncate">
+          faltam <span className={`font-semibold ${cor.text}`}>{formatarMoeda(bucket.faltaParaMeta)}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -103,28 +102,18 @@ function CardVendedor({ stats, temLeads }: { stats: VendedorStats; temLeads: boo
 
   return (
     <Link href={`/vendedor/${stats.id}`} className="block">
-      <div className={`bg-slate-800 rounded-2xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-        <div className={`px-4 py-2 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
-          <div className="flex items-center gap-2">
-            <span className="text-base font-extrabold text-white">{stats.nomeExibicao}</span>
-            <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">R{stats.regiao}</span>
-          </div>
-          <div className="text-right">
-            <div className={`text-lg font-black ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</div>
-            <div className="text-xs text-slate-400">do total</div>
-          </div>
+      <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
+        {/* Header compacto: nome + total/meta + % em uma linha */}
+        <div className={`px-3 py-1.5 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
+          <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
+          <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
+          <span className="text-sm font-black text-white ml-auto">{formatarMoeda(stats.totalGeral)}</span>
+          <span className="text-xs text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
+          <span className={`text-sm font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
+          {naMeta && <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
         </div>
 
-        <div className="px-4 py-2 flex items-baseline gap-2 border-b border-slate-700/50">
-          <span className="text-2xl font-black text-white">{formatarMoeda(stats.totalGeral)}</span>
-          <span className="text-sm text-slate-400">/ {formatarMoeda(stats.metaTotal)}</span>
-          {naMeta && (
-            <span className="ml-auto text-xs font-bold text-green-400 bg-green-500/15 px-2 py-1 rounded-lg">
-              DENTRO DA META
-            </span>
-          )}
-        </div>
-
+        {/* Buckets */}
         {temLeads ? (
           <div className="grid grid-cols-2 divide-x divide-slate-700">
             <BucketMini bucket={stats.carteira} label="CARTEIRA" />
@@ -140,19 +129,18 @@ function CardVendedor({ stats, temLeads }: { stats: VendedorStats; temLeads: boo
 
 function SkeletonCard() {
   return (
-    <div className="bg-slate-800 rounded-2xl border-2 border-slate-700 overflow-hidden animate-pulse">
-      <div className="px-5 py-3 border-b border-slate-700"><div className="h-5 bg-slate-700 rounded w-1/3" /></div>
-      <div className="px-5 py-3 border-b border-slate-700"><div className="h-8 bg-slate-700 rounded w-1/2" /></div>
+    <div className="bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden animate-pulse">
+      <div className="px-3 py-1.5 border-b border-slate-700"><div className="h-4 bg-slate-700 rounded w-1/2" /></div>
       <div className="grid grid-cols-2 divide-x divide-slate-700">
-        <div className="p-4 space-y-2">
+        <div className="px-2.5 py-1.5 space-y-1">
           <div className="h-3 bg-slate-700 rounded w-1/3" />
-          <div className="h-6 bg-slate-700 rounded w-2/3" />
-          <div className="h-2 bg-slate-700 rounded" />
+          <div className="h-4 bg-slate-700 rounded w-2/3" />
+          <div className="h-1 bg-slate-700 rounded" />
         </div>
-        <div className="p-4 space-y-2">
+        <div className="px-2.5 py-1.5 space-y-1">
           <div className="h-3 bg-slate-700 rounded w-1/3" />
-          <div className="h-6 bg-slate-700 rounded w-2/3" />
-          <div className="h-2 bg-slate-700 rounded" />
+          <div className="h-4 bg-slate-700 rounded w-2/3" />
+          <div className="h-1 bg-slate-700 rounded" />
         </div>
       </div>
     </div>
@@ -294,7 +282,9 @@ export default function PainelGeral() {
         {(() => {
           const n = isLoading ? VENDEDORES.length : stats.length
           const cols =
+            n <= 2 ? "xl:grid-cols-2" :
             n <= 4 ? "xl:grid-cols-4" :
+            n === 5 ? "xl:grid-cols-5" :
             n <= 6 ? "xl:grid-cols-3" :
             n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
           return (
@@ -350,7 +340,7 @@ export default function PainelGeral() {
                     </span>
                   </div>
                 </div>
-                <div ref={chartContainerRef} className="flex-1 min-h-0">
+                <div ref={chartContainerRef} className="flex-1 min-h-[140px]">
                 <ResponsiveContainer width="100%" height={chartHeight}>
                   <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
