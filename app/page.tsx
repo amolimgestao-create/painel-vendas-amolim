@@ -193,7 +193,7 @@ export default function PainelGeral() {
   }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => location.reload(), 30 * 1000)
+    const t = setTimeout(() => location.reload(), 5 * 60 * 1000)
     return () => clearTimeout(t)
   }, [])
 
