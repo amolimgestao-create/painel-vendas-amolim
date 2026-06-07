@@ -105,22 +105,4 @@ export const VENDEDORES: VendedorConfig[] = [
       metaAmolim: 0,
     },
   },
-  {
-    id: "teste",
-    nomeExibicao: "Teste",
-    regiao: 5,
-    temLeads: false,
-    carteira: {
-      apiNome: "REGIAO 5 CARTEIRA",
-      meta: 0,
-      superMeta: 0,
-      metaAmolim: 0,
-    },
-    leads: {
-      apiNome: "",
-      meta: 0,
-      superMeta: 0,
-      metaAmolim: 0,
-    },
-  },
 ]
