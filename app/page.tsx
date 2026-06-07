@@ -2,7 +2,7 @@
 
 import useSWR from "swr"
 import dynamic from "next/dynamic"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Maximize2 } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
 import { getMesAtual, formatarMoeda, getDiasNoMes, getDiaAtual, getMesStr } from "@/lib/utils"
@@ -197,20 +197,6 @@ export default function PainelGeral() {
     return () => clearTimeout(t)
   }, [])
 
-  const chartContainerRef = useRef<HTMLDivElement>(null)
-  const [chartHeight, setChartHeight] = useState(160)
-
-  useEffect(() => {
-    const el = chartContainerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(() => {
-      const h = el.clientHeight
-      if (h > 40) setChartHeight(h)
-    })
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
   const { data: pedidos, isLoading, error } = useSWR<Pedido[]>(
     `/api/pedidos?criacaoIni=${criacaoIni}&criacaoFim=${criacaoFim}`,
     fetcher,
@@ -378,8 +364,9 @@ export default function PainelGeral() {
                     </span>
                   </div>
                 </div>
-                <div ref={chartContainerRef} className="flex-1 min-h-[140px]">
-                <ResponsiveContainer width="100%" height={chartHeight}>
+                <div className="flex-1 min-h-[120px] relative">
+                <div className="absolute inset-0">
+                <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
@@ -454,6 +441,7 @@ export default function PainelGeral() {
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
+                </div>
                 </div>
               </div>
             )}
