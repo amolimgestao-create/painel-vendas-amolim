@@ -98,9 +98,9 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
       <div className="w-full bg-slate-700 rounded-full h-2.5">
         <div className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
       </div>
-      <div className="flex justify-between text-xs">
-        <span className="text-slate-500">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
-        {!atingiu && !semMeta && <span className={`font-semibold ${cor.text}`}>faltam {formatarMoeda(bucket.faltaParaMeta)}</span>}
+      <div className="flex flex-col gap-0.5 text-xs">
+        <span className="text-slate-500 truncate">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
+        {!atingiu && !semMeta && <span className={`font-semibold truncate ${cor.text}`}>faltam {formatarMoeda(bucket.faltaParaMeta)}</span>}
       </div>
     </div>
   )
