@@ -87,14 +87,14 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
   }
 
   return (
-    <div className="p-4 flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold tracking-widest text-slate-400">{label}</span>
+    <div className="p-4 flex flex-col gap-2 min-w-0 overflow-hidden">
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-xs font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
         {semMeta ? <span className="text-xs text-slate-500">sem meta</span>
-          : atingiu ? <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">META ✓</span>
-          : <span className={`text-xs font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
+          : atingiu ? <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">META ✓</span>
+          : <span className={`text-xs font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
       </div>
-      <div className="text-2xl font-extrabold text-white leading-none">{formatarMoeda(bucket.totalFaturado)}</div>
+      <div className="text-2xl font-extrabold text-white leading-none truncate">{formatarMoeda(bucket.totalFaturado)}</div>
       <div className="w-full bg-slate-700 rounded-full h-2.5">
         <div className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
       </div>
