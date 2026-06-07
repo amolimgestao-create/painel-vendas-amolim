@@ -58,90 +58,125 @@ function buildTeamChart(
   })
 }
 
-function BucketMini({ bucket, label }: { bucket: BucketStats; label: string }) {
+function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: string; compact: boolean }) {
   const pct = Math.min(bucket.percentualMeta, 100)
   const cor = statusCor(bucket.percentualMeta)
   const atingiu = bucket.percentualMeta >= 100
   const semMeta = bucket.meta === 0
 
-  return (
-    <div className="px-2.5 py-1.5 flex flex-col gap-0.5">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold tracking-widest text-slate-400">{label}</span>
-        {semMeta ? (
-          <span className="text-[10px] text-slate-500">sem meta</span>
-        ) : atingiu ? (
-          <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full">META ✓</span>
-        ) : (
-          <span className={`text-[10px] font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>
+  if (compact) {
+    return (
+      <div className="px-2.5 py-1.5 flex flex-col gap-0.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-bold tracking-widest text-slate-400">{label}</span>
+          {semMeta ? <span className="text-[10px] text-slate-500">sem meta</span>
+            : atingiu ? <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full">META ✓</span>
+            : <span className={`text-[10px] font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
+        </div>
+        <div className="text-base font-extrabold text-white leading-tight">{formatarMoeda(bucket.totalFaturado)}</div>
+        <div className="w-full bg-slate-700 rounded-full h-1">
+          <div className={`h-1 rounded-full transition-all ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
+        </div>
+        {!semMeta && !atingiu && (
+          <div className="text-[10px] text-slate-500 truncate">
+            faltam <span className={`font-semibold ${cor.text}`}>{formatarMoeda(bucket.faltaParaMeta)}</span>
+          </div>
         )}
       </div>
-      <div className="text-base font-extrabold text-white leading-tight">
-        {formatarMoeda(bucket.totalFaturado)}
+    )
+  }
+
+  return (
+    <div className="p-4 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold tracking-widest text-slate-400">{label}</span>
+        {semMeta ? <span className="text-xs text-slate-500">sem meta</span>
+          : atingiu ? <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">META ✓</span>
+          : <span className={`text-xs font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
       </div>
-      <div className="w-full bg-slate-700 rounded-full h-1">
-        <div
-          className={`h-1 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`}
-          style={{ width: semMeta ? 0 : `${pct}%` }}
-        />
+      <div className="text-2xl font-extrabold text-white leading-none">{formatarMoeda(bucket.totalFaturado)}</div>
+      <div className="w-full bg-slate-700 rounded-full h-2.5">
+        <div className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
       </div>
-      {!semMeta && !atingiu && (
-        <div className="text-[10px] text-slate-500 truncate">
-          faltam <span className={`font-semibold ${cor.text}`}>{formatarMoeda(bucket.faltaParaMeta)}</span>
-        </div>
-      )}
+      <div className="flex justify-between text-xs">
+        <span className="text-slate-500">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
+        {!atingiu && !semMeta && <span className={`font-semibold ${cor.text}`}>faltam {formatarMoeda(bucket.faltaParaMeta)}</span>}
+      </div>
     </div>
   )
 }
 
-function CardVendedor({ stats, temLeads }: { stats: VendedorStats; temLeads: boolean }) {
+function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temLeads: boolean; compact: boolean }) {
   const cor = statusCor(stats.percentualMetaTotal)
   const naMeta = temLeads
     ? stats.carteira.percentualMeta >= 100 && stats.leads.percentualMeta >= 100
     : stats.carteira.percentualMeta >= 100
 
+  const buckets = temLeads ? (
+    <div className="grid grid-cols-2 divide-x divide-slate-700">
+      <BucketMini bucket={stats.carteira} label="CARTEIRA" compact={compact} />
+      <BucketMini bucket={stats.leads} label="LEADS" compact={compact} />
+    </div>
+  ) : (
+    <BucketMini bucket={stats.carteira} label="CARTEIRA" compact={compact} />
+  )
+
   return (
     <Link href={`/vendedor/${stats.id}`} className="block">
-      <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-        {/* Header compacto: nome + total/meta + % em uma linha */}
-        <div className={`px-3 py-1.5 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
-          <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
-          <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
-          <span className="text-sm font-black text-white ml-auto">{formatarMoeda(stats.totalGeral)}</span>
-          <span className="text-xs text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
-          <span className={`text-sm font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
-          {naMeta && <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
-        </div>
-
-        {/* Buckets */}
-        {temLeads ? (
-          <div className="grid grid-cols-2 divide-x divide-slate-700">
-            <BucketMini bucket={stats.carteira} label="CARTEIRA" />
-            <BucketMini bucket={stats.leads} label="LEADS" />
+      {compact ? (
+        /* ── Modo compacto (>5 vendors) ── */
+        <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
+          <div className={`px-3 py-1.5 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
+            <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
+            <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
+            <span className="text-sm font-black text-white ml-auto">{formatarMoeda(stats.totalGeral)}</span>
+            <span className="text-xs text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
+            <span className={`text-sm font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
+            {naMeta && <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
           </div>
-        ) : (
-          <BucketMini bucket={stats.carteira} label="CARTEIRA" />
-        )}
-      </div>
+          {buckets}
+        </div>
+      ) : (
+        /* ── Modo normal (≤5 vendors) ── */
+        <div className={`bg-slate-800 rounded-2xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
+          <div className={`px-5 py-3 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-extrabold text-white">{stats.nomeExibicao}</span>
+              <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">R{stats.regiao}</span>
+            </div>
+            <div className="text-right">
+              <div className={`text-xl font-black ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</div>
+              <div className="text-xs text-slate-400">do total</div>
+            </div>
+          </div>
+          <div className="px-5 py-3 flex items-baseline gap-2 border-b border-slate-700/50">
+            <span className="text-3xl font-black text-white">{formatarMoeda(stats.totalGeral)}</span>
+            <span className="text-sm text-slate-400">/ {formatarMoeda(stats.metaTotal)}</span>
+            {naMeta && <span className="ml-auto text-xs font-bold text-green-400 bg-green-500/15 px-2 py-1 rounded-lg">DENTRO DA META</span>}
+          </div>
+          {buckets}
+        </div>
+      )}
     </Link>
   )
 }
 
-function SkeletonCard() {
-  return (
+function SkeletonCard({ compact }: { compact: boolean }) {
+  return compact ? (
     <div className="bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden animate-pulse">
       <div className="px-3 py-1.5 border-b border-slate-700"><div className="h-4 bg-slate-700 rounded w-1/2" /></div>
       <div className="grid grid-cols-2 divide-x divide-slate-700">
-        <div className="px-2.5 py-1.5 space-y-1">
-          <div className="h-3 bg-slate-700 rounded w-1/3" />
-          <div className="h-4 bg-slate-700 rounded w-2/3" />
-          <div className="h-1 bg-slate-700 rounded" />
-        </div>
-        <div className="px-2.5 py-1.5 space-y-1">
-          <div className="h-3 bg-slate-700 rounded w-1/3" />
-          <div className="h-4 bg-slate-700 rounded w-2/3" />
-          <div className="h-1 bg-slate-700 rounded" />
-        </div>
+        <div className="px-2.5 py-1.5 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
+        <div className="px-2.5 py-1.5 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
+      </div>
+    </div>
+  ) : (
+    <div className="bg-slate-800 rounded-2xl border-2 border-slate-700 overflow-hidden animate-pulse">
+      <div className="px-5 py-3 border-b border-slate-700"><div className="h-5 bg-slate-700 rounded w-1/3" /></div>
+      <div className="px-5 py-3 border-b border-slate-700"><div className="h-8 bg-slate-700 rounded w-1/2" /></div>
+      <div className="grid grid-cols-2 divide-x divide-slate-700">
+        <div className="p-4 space-y-2"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-6 bg-slate-700 rounded w-2/3" /><div className="h-2 bg-slate-700 rounded" /></div>
+        <div className="p-4 space-y-2"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-6 bg-slate-700 rounded w-2/3" /><div className="h-2 bg-slate-700 rounded" /></div>
       </div>
     </div>
   )
@@ -281,21 +316,24 @@ export default function PainelGeral() {
         {/* Cards dos vendedores — grid dinâmico para até 10 */}
         {(() => {
           const n = isLoading ? VENDEDORES.length : stats.length
+          const compact = n > 5
           const cols =
             n <= 2 ? "xl:grid-cols-2" :
             n <= 4 ? "xl:grid-cols-4" :
             n === 5 ? "xl:grid-cols-5" :
             n <= 6 ? "xl:grid-cols-3" :
             n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
+          const gap = compact ? "gap-2" : "gap-3"
           return (
-        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} gap-3 shrink-0`}>
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} ${gap} shrink-0`}>
           {isLoading
-            ? Array.from({ length: VENDEDORES.length }).map((_, i) => <SkeletonCard key={i} />)
+            ? Array.from({ length: VENDEDORES.length }).map((_, i) => <SkeletonCard key={i} compact={compact} />)
             : stats.map((s) => (
                 <CardVendedor
                   key={s.id}
                   stats={s}
                   temLeads={vendedorConfigs.get(s.id)?.temLeads ?? true}
+                  compact={compact}
                 />
               ))}
         </div>
