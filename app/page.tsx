@@ -3,11 +3,11 @@
 import useSWR from "swr"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
-import { Maximize2 } from "lucide-react"
+import { Maximize2, ChevronLeft, ChevronRight } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
-import { getMesAtual, formatarMoeda, getDiasNoMes, getDiaAtual, getMesStr } from "@/lib/utils"
+import { formatarMoeda, formatarMesAno, getDiaAtual, getMesAtualStr, getMesRange } from "@/lib/utils"
 import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
-import { VENDEDORES } from "@/lib/metas"
+import { HISTORICO_METAS, VENDEDORES } from "@/lib/metas"
 import Link from "next/link"
 
 const ComposedChart = dynamic(() => import("recharts").then((m) => m.ComposedChart), { ssr: false })
@@ -36,7 +36,7 @@ function buildTeamChart(
   stats: VendedorStats[],
   metaTotal: number,
   diasNoMes: number,
-  diaAtual: number,
+  diasMostrar: number,
   mesStr: string
 ) {
   const mapDia: Record<string, number> = {}
@@ -46,7 +46,7 @@ function buildTeamChart(
     })
   })
   let cum = 0
-  return Array.from({ length: diaAtual }, (_, i) => {
+  return Array.from({ length: diasMostrar }, (_, i) => {
     const d = i + 1
     const key = String(d).padStart(2, "0") + "/" + mesStr
     cum += mapDia[key] || 0
@@ -124,7 +124,6 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
   return (
     <Link href={`/vendedor/${stats.id}`} className="block">
       {compact ? (
-        /* ── Modo compacto (>5 vendors) ── */
         <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
           <div className={`px-3 py-1.5 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
             <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
@@ -137,7 +136,6 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
           {buckets}
         </div>
       ) : (
-        /* ── Modo normal (≤5 vendors) ── */
         <div className={`bg-slate-800 rounded-2xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
           <div className={`px-5 py-3 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
             <div className="flex items-center gap-2">
@@ -184,8 +182,23 @@ function SkeletonCard({ compact }: { compact: boolean }) {
 
 export default function PainelGeral() {
   const [agora, setAgora] = useState(new Date())
-  const { criacaoIni, criacaoFim } = getMesAtual()
   const intervalo = parseInt(process.env.NEXT_PUBLIC_REFRESH_INTERVAL || "300000")
+
+  const mesAtualStr = getMesAtualStr()
+  const [mesSelecionado, setMesSelecionado] = useState(mesAtualStr)
+
+  // Meses disponíveis = histórico de metas até o mês atual (sem meses futuros)
+  const mesesDisponiveis = Object.keys(HISTORICO_METAS).filter((m) => m <= mesAtualStr).sort()
+  const idxMes = mesesDisponiveis.indexOf(mesSelecionado)
+  const podePrev = idxMes > 0
+  const podeNext = idxMes < mesesDisponiveis.length - 1
+
+  const { criacaoIni, criacaoFim, mesStr, diasNoMes, isCurrentMonth } = getMesRange(mesSelecionado)
+  const diaAtual = getDiaAtual()
+  const diasMostrar = isCurrentMonth ? diaAtual : diasNoMes
+
+  const vendedoresDoMes = HISTORICO_METAS[mesSelecionado] ?? VENDEDORES
+  const vendedorConfigs = new Map(vendedoresDoMes.map((v) => [v.id, v]))
 
   useEffect(() => {
     const t = setInterval(() => setAgora(new Date()), 1000)
@@ -203,8 +216,6 @@ export default function PainelGeral() {
     { refreshInterval: intervalo }
   )
 
-  const vendedorConfigs = new Map(VENDEDORES.map((v) => [v.id, v]))
-
   const stats = pedidos && !error
     ? processarPedidos(pedidos).sort((a, b) => a.regiao - b.regiao)
     : []
@@ -220,12 +231,8 @@ export default function PainelGeral() {
       : s.carteira.percentualMeta >= 100
   }).length
 
-  const hoje = new Date()
-  const diasNoMes = getDiasNoMes(hoje.getFullYear(), hoje.getMonth() + 1)
-  const diaAtual = getDiaAtual()
-  const mesStr = getMesStr()
   const teamChartData = stats.length > 0
-    ? buildTeamChart(stats, metaGeral, diasNoMes, diaAtual, mesStr)
+    ? buildTeamChart(stats, metaGeral, diasNoMes, diasMostrar, mesStr)
     : []
 
   function toggleFullscreen() {
@@ -253,9 +260,26 @@ export default function PainelGeral() {
               className="h-9 w-auto block"
             />
           </div>
-          <p className="text-xs text-slate-400 mt-1.5">
-            Painel Comercial — {criacaoIni.substring(0, 7).replace("-", "/")}
-          </p>
+          {/* Navegação de meses */}
+          <div className="flex items-center gap-1 mt-1.5">
+            <button
+              onClick={() => podePrev && setMesSelecionado(mesesDisponiveis[idxMes - 1])}
+              disabled={!podePrev}
+              className="p-0.5 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft size={13} />
+            </button>
+            <span className="text-xs text-slate-400">
+              Painel Comercial — {formatarMesAno(mesSelecionado)}
+            </span>
+            <button
+              onClick={() => podeNext && setMesSelecionado(mesesDisponiveis[idxMes + 1])}
+              disabled={!podeNext}
+              className="p-0.5 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
         </div>
 
         {!isLoading && stats.length > 0 && (
@@ -299,9 +323,9 @@ export default function PainelGeral() {
           </div>
         )}
 
-        {/* Cards dos vendedores — grid dinâmico para até 10 */}
+        {/* Cards dos vendedores */}
         {(() => {
-          const n = isLoading ? VENDEDORES.length : stats.length
+          const n = isLoading ? vendedoresDoMes.length : stats.length
           const compact = n > 5
           const cols =
             n <= 2 ? "xl:grid-cols-2" :
@@ -311,18 +335,18 @@ export default function PainelGeral() {
             n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
           const gap = compact ? "gap-2" : "gap-3"
           return (
-        <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} ${gap} shrink-0`}>
-          {isLoading
-            ? Array.from({ length: VENDEDORES.length }).map((_, i) => <SkeletonCard key={i} compact={compact} />)
-            : stats.map((s) => (
-                <CardVendedor
-                  key={s.id}
-                  stats={s}
-                  temLeads={vendedorConfigs.get(s.id)?.temLeads ?? true}
-                  compact={compact}
-                />
-              ))}
-        </div>
+            <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} ${gap} shrink-0`}>
+              {isLoading
+                ? Array.from({ length: vendedoresDoMes.length }).map((_, i) => <SkeletonCard key={i} compact={compact} />)
+                : stats.map((s) => (
+                    <CardVendedor
+                      key={s.id}
+                      stats={s}
+                      temLeads={vendedorConfigs.get(s.id)?.temLeads ?? true}
+                      compact={compact}
+                    />
+                  ))}
+            </div>
           )
         })()}
 
@@ -344,7 +368,7 @@ export default function PainelGeral() {
               </div>
             </div>
 
-            {/* Gráfico de progressão diária da equipe — flex-1 ocupa espaço restante */}
+            {/* Gráfico de progressão diária */}
             {teamChartData.length > 0 && (
               <div className="bg-slate-800 rounded-2xl px-4 pt-3 pb-0 border border-slate-700 flex-1 min-h-0 flex flex-col overflow-hidden">
                 <div className="mb-2 flex items-start justify-between shrink-0">
@@ -352,7 +376,6 @@ export default function PainelGeral() {
                     <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
                     <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
                   </div>
-                  {/* Legenda */}
                   <div className="flex items-center gap-4 text-xs text-slate-300">
                     <span className="flex items-center gap-1.5">
                       <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={A_GREEN} strokeWidth="2" strokeDasharray="5 2" /></svg>
@@ -365,83 +388,85 @@ export default function PainelGeral() {
                   </div>
                 </div>
                 <div className="flex-1 min-h-[120px] relative">
-                <div className="absolute inset-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
-                    <YAxis
-                      stroke="#64748b"
-                      tick={{ fontSize: 11 }}
-                      tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
-                      width={60}
-                    />
-                    <Tooltip
-                      contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
-                      formatter={(v, name) => [
-                        formatarMoeda(Number(v)),
-                        name === "total" ? "Realizado" : "Meta esperada",
-                      ]}
-                      labelFormatter={(v) => `Dia ${v}`}
-                    />
-                    <ReferenceLine
-                      y={metaGeral}
-                      stroke={A_GREEN}
-                      strokeDasharray="6 3"
-                      strokeOpacity={0.35}
-                      label={{ value: "Meta", fill: A_GREEN, fontSize: 10, position: "insideTopRight" }}
-                    />
-                    {/* Linha vertical no dia atual — label "Dia X" no topo */}
-                    <ReferenceLine
-                      x={diaAtual}
-                      stroke="#475569"
-                      strokeDasharray="3 3"
-                      strokeOpacity={0.5}
-                      label={(props: any) => (
-                        <text x={props.viewBox.x + 6} y={-6} fill="white" fontSize={11} fontWeight="bold">
-                          {`Dia ${diaAtual}`}
-                        </text>
-                      )}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="total"
-                      fill={A_BLUE}
-                      fillOpacity={0.4}
-                      stroke={A_BLUE_L}
-                      strokeWidth={2}
-                      dot={(dotProps: any) => {
-                        if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
-                        const totalVal = Number(dotProps.payload?.total ?? 0)
-                        return (
-                          <g key={`d-${dotProps.index}`}>
-                            <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
-                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(totalVal)}</text>
-                          </g>
-                        )
-                      }}
-                      activeDot={{ r: 5, fill: A_BLUE_L, stroke: "#0f172a", strokeWidth: 2 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="metaPace"
-                      stroke={A_GREEN}
-                      strokeWidth={2}
-                      strokeDasharray="6 3"
-                      dot={(dotProps: any) => {
-                        if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
-                        const metaVal = Number(dotProps.payload?.metaPace ?? 0)
-                        return (
-                          <g key={`d-${dotProps.index}`}>
-                            <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_GREEN} stroke="#0f172a" strokeWidth={2} />
-                            <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
-                          </g>
-                        )
-                      }}
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-                </div>
+                  <div className="absolute inset-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                        <XAxis dataKey="dia" stroke="#64748b" tick={{ fontSize: 11 }} />
+                        <YAxis
+                          stroke="#64748b"
+                          tick={{ fontSize: 11 }}
+                          tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                          width={60}
+                        />
+                        <Tooltip
+                          contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
+                          formatter={(v, name) => [
+                            formatarMoeda(Number(v)),
+                            name === "total" ? "Realizado" : "Meta esperada",
+                          ]}
+                          labelFormatter={(v) => `Dia ${v}`}
+                        />
+                        <ReferenceLine
+                          y={metaGeral}
+                          stroke={A_GREEN}
+                          strokeDasharray="6 3"
+                          strokeOpacity={0.35}
+                          label={{ value: "Meta", fill: A_GREEN, fontSize: 10, position: "insideTopRight" }}
+                        />
+                        {/* Linha do dia atual — só no mês corrente */}
+                        {isCurrentMonth && (
+                          <ReferenceLine
+                            x={diaAtual}
+                            stroke="#475569"
+                            strokeDasharray="3 3"
+                            strokeOpacity={0.5}
+                            label={(props: any) => (
+                              <text x={props.viewBox.x + 6} y={-6} fill="white" fontSize={11} fontWeight="bold">
+                                {`Dia ${diaAtual}`}
+                              </text>
+                            )}
+                          />
+                        )}
+                        <Area
+                          type="monotone"
+                          dataKey="total"
+                          fill={A_BLUE}
+                          fillOpacity={0.4}
+                          stroke={A_BLUE_L}
+                          strokeWidth={2}
+                          dot={(dotProps: any) => {
+                            if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
+                            const totalVal = Number(dotProps.payload?.total ?? 0)
+                            return (
+                              <g key={`d-${dotProps.index}`}>
+                                <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
+                                <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(totalVal)}</text>
+                              </g>
+                            )
+                          }}
+                          activeDot={{ r: 5, fill: A_BLUE_L, stroke: "#0f172a", strokeWidth: 2 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="metaPace"
+                          stroke={A_GREEN}
+                          strokeWidth={2}
+                          strokeDasharray="6 3"
+                          dot={(dotProps: any) => {
+                            if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
+                            const metaVal = Number(dotProps.payload?.metaPace ?? 0)
+                            return (
+                              <g key={`d-${dotProps.index}`}>
+                                <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_GREEN} stroke="#0f172a" strokeWidth={2} />
+                                <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
+                              </g>
+                            )
+                          }}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
             )}

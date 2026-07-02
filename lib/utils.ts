@@ -6,6 +6,40 @@ export function getMesAtual(): { criacaoIni: string; criacaoFim: string } {
   return { criacaoIni: `${ano}-${mes}-01`, criacaoFim: `${ano}-${mes}-${dia}` }
 }
 
+export function getMesAtualStr(): string {
+  const hoje = new Date()
+  return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`
+}
+
+export function getMesProximoStr(): string {
+  const prox = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+  return `${prox.getFullYear()}-${String(prox.getMonth() + 1).padStart(2, "0")}`
+}
+
+export function getMesRange(yyyyMM: string): {
+  criacaoIni: string
+  criacaoFim: string
+  mesStr: string
+  diasNoMes: number
+  isCurrentMonth: boolean
+} {
+  const [ano, mes] = yyyyMM.split("-").map(Number)
+  const mesAtualStr = getMesAtualStr()
+  const isCurrentMonth = yyyyMM === mesAtualStr
+  const diasNoMes = new Date(ano, mes, 0).getDate()
+  const mesStr = String(mes).padStart(2, "0")
+  const diaFim = isCurrentMonth
+    ? String(new Date().getDate()).padStart(2, "0")
+    : String(diasNoMes).padStart(2, "0")
+  return {
+    criacaoIni: `${yyyyMM}-01`,
+    criacaoFim: `${yyyyMM}-${diaFim}`,
+    mesStr,
+    diasNoMes,
+    isCurrentMonth,
+  }
+}
+
 export function getMesAnterior(): { criacaoIni: string; criacaoFim: string } {
   const hoje = new Date()
   const ultimo = new Date(hoje.getFullYear(), hoje.getMonth(), 0)

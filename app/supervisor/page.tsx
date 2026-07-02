@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { VENDEDORES, VendedorConfig } from "@/lib/metas"
+import { useEffect, useState } from "react"
+import { HISTORICO_METAS, VENDEDORES, VendedorConfig } from "@/lib/metas"
+import { getMesAtualStr, getMesProximoStr, formatarMesAno } from "@/lib/utils"
 import Link from "next/link"
 import {
   ArrowLeft, Lock, Save, CheckCircle, AlertCircle, Loader2,
-  Plus, Trash2, X, Users, Target, Gift,
+  Plus, Trash2, X, Users, Target, Gift, Calendar,
 } from "lucide-react"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -62,6 +63,11 @@ function initMetas(vs: VendedorConfig[]): FormMetas {
   )
 }
 
+function getVendedoresParaMes(mes: string): VendedorConfig[] {
+  const mesAtual = getMesAtualStr()
+  return HISTORICO_METAS[mes] ?? HISTORICO_METAS[mesAtual] ?? VENDEDORES
+}
+
 const EMPTY_ZERO: BucketForm = { meta: "0,00", superMeta: "0,00", metaAmolim: "0,00" }
 const EMPTY_NOVO: NovoForm = {
   nomeExibicao: "",
@@ -107,23 +113,38 @@ function CampoMeta({
 // ─── Main ──────────────────────────────────────────────────────────────────
 
 export default function SupervisorPage() {
-  const [etapa, setEtapa]           = useState<"login" | "painel">("login")
-  const [aba, setAba]               = useState<Aba>("vendedores")
-  const [senha, setSenha]           = useState("")
-  const [senhaErro, setSenhaErro]   = useState(false)
-  const [loginando, setLoginando]   = useState(false)
+  const mesAtualStr  = getMesAtualStr()
+  const mesProxStr   = getMesProximoStr()
 
-  const [lista, setLista]           = useState<VendedorLocal[]>(VENDEDORES.map((v) => ({ ...v })))
-  const [deletar, setDeletar]       = useState<Set<string>>(new Set())
-  const [formMetas, setFormMetas]   = useState<FormMetas>(initMetas(VENDEDORES))
+  const [etapa, setEtapa]         = useState<"login" | "painel">("login")
+  const [aba, setAba]             = useState<Aba>("vendedores")
+  const [senha, setSenha]         = useState("")
+  const [senhaErro, setSenhaErro] = useState(false)
+  const [loginando, setLoginando] = useState(false)
 
-  const [modal, setModal]           = useState(false)
-  const [novoForm, setNovoForm]     = useState<NovoForm>(EMPTY_NOVO)
-  const [novoErro, setNovoErro]     = useState("")
+  // Mês que está sendo editado no supervisor (atual ou próximo)
+  const [mesSup, setMesSup] = useState(mesAtualStr)
 
-  const [confirmId, setConfirmId]   = useState<string | null>(null)
-  const [status, setStatus]         = useState<"idle" | "salvando" | "sucesso" | "erro">("idle")
-  const [erroMsg, setErroMsg]       = useState("")
+  const [lista, setLista]         = useState<VendedorLocal[]>(() => getVendedoresParaMes(mesAtualStr).map((v) => ({ ...v })))
+  const [deletar, setDeletar]     = useState<Set<string>>(new Set())
+  const [formMetas, setFormMetas] = useState<FormMetas>(() => initMetas(getVendedoresParaMes(mesAtualStr)))
+
+  const [modal, setModal]         = useState(false)
+  const [novoForm, setNovoForm]   = useState<NovoForm>(EMPTY_NOVO)
+  const [novoErro, setNovoErro]   = useState("")
+
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [status, setStatus]       = useState<"idle" | "salvando" | "sucesso" | "erro">("idle")
+  const [erroMsg, setErroMsg]     = useState("")
+
+  // Recarrega lista e metas ao trocar o mês
+  useEffect(() => {
+    const d = getVendedoresParaMes(mesSup)
+    setLista(d.map((v) => ({ ...v })))
+    setFormMetas(initMetas(d))
+    setDeletar(new Set())
+    setStatus("idle")
+  }, [mesSup])
 
   const ativos = lista.filter((v) => !deletar.has(v.id))
 
@@ -207,7 +228,7 @@ export default function SupervisorPage() {
       const res = await fetch("/api/admin/update-metas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: senha, vendedores }),
+        body: JSON.stringify({ password: senha, vendedores, mesAno: mesSup }),
       })
       if (res.status === 401) {
         setStatus("erro")
@@ -305,7 +326,10 @@ export default function SupervisorPage() {
         <div className="text-center max-w-sm">
           <CheckCircle size={48} className="text-green-400 mx-auto mb-4" />
           <h2 className="text-white text-xl font-bold mb-2">Alterações salvas!</h2>
-          <p className="text-slate-400 text-sm mb-6">O painel será atualizado em ~2 minutos.</p>
+          <p className="text-slate-400 text-sm mb-1">
+            Metas de <span className="text-white font-semibold">{formatarMesAno(mesSup)}</span> atualizadas.
+          </p>
+          <p className="text-slate-500 text-xs mb-6">O painel será atualizado em ~2 minutos.</p>
           <div className="flex flex-col gap-3">
             <Link
               href="/"
@@ -344,6 +368,33 @@ export default function SupervisorPage() {
         <div className="flex-1">
           <h1 className="text-white font-bold text-lg">Painel Supervisor</h1>
         </div>
+
+        {/* Seletor de mês */}
+        <div className="flex items-center gap-1 bg-slate-800 rounded-xl p-1 border border-slate-700">
+          <Calendar size={13} className="text-slate-500 ml-2" />
+          <button
+            onClick={() => setMesSup(mesAtualStr)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              mesSup === mesAtualStr
+                ? "bg-blue-600 text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {formatarMesAno(mesAtualStr)}
+          </button>
+          <button
+            onClick={() => setMesSup(mesProxStr)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              mesSup === mesProxStr
+                ? "bg-blue-600 text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {formatarMesAno(mesProxStr)}
+            <span className="ml-1 text-[10px] opacity-70">próximo</span>
+          </button>
+        </div>
+
         <span className="text-xs text-slate-400 border border-slate-600 px-2.5 py-1 rounded-lg">
           {ativos.length} / 10 vendedores
         </span>
@@ -485,74 +536,92 @@ export default function SupervisorPage() {
 
         {/* ── Aba: Metas ───────────────────────────────────────────────── */}
         {aba === "metas" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {ativos.map((v) => (
-              <div key={v.id} className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-                <div className="px-5 py-3 border-b border-slate-700 bg-slate-800/80 flex items-center gap-2">
-                  <h2 className="text-white font-bold text-lg">{v.nomeExibicao}</h2>
-                  <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">
-                    Região {v.regiao}
-                  </span>
-                </div>
+          <div>
+            {/* Indicador do mês sendo editado */}
+            <div className="mb-5 flex items-center gap-2">
+              <span className="text-xs text-slate-400">Editando metas de</span>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                mesSup === mesProxStr
+                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                  : "bg-blue-600/15 text-blue-400 border border-blue-500/30"
+              }`}>
+                {formatarMesAno(mesSup)}
+                {mesSup === mesProxStr && " (próximo mês)"}
+              </span>
+              {!HISTORICO_METAS[mesSup] && (
+                <span className="text-xs text-slate-500 italic">— sem histórico, usando metas do mês atual como base</span>
+              )}
+            </div>
 
-                <div className={`p-5 grid gap-5 ${v.temLeads ? "grid-cols-2" : "grid-cols-1"}`}>
-                  {/* Carteira */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
-                      <span className="text-xs font-bold text-slate-300 tracking-wider">CARTEIRA</span>
-                    </div>
-                    <CampoMeta
-                      label="Meta" destaque
-                      value={formMetas[v.id]?.carteira.meta ?? "0,00"}
-                      onChange={(val) => setMetaField(v.id, "carteira", "meta", val)}
-                    />
-                    <CampoMeta
-                      label="Super Meta"
-                      value={formMetas[v.id]?.carteira.superMeta ?? "0,00"}
-                      onChange={(val) => setMetaField(v.id, "carteira", "superMeta", val)}
-                    />
-                    <CampoMeta
-                      label="Meta Amolim"
-                      value={formMetas[v.id]?.carteira.metaAmolim ?? "0,00"}
-                      onChange={(val) => setMetaField(v.id, "carteira", "metaAmolim", val)}
-                    />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {ativos.map((v) => (
+                <div key={v.id} className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                  <div className="px-5 py-3 border-b border-slate-700 bg-slate-800/80 flex items-center gap-2">
+                    <h2 className="text-white font-bold text-lg">{v.nomeExibicao}</h2>
+                    <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">
+                      Região {v.regiao}
+                    </span>
                   </div>
 
-                  {/* Leads */}
-                  {v.temLeads && (
+                  <div className={`p-5 grid gap-5 ${v.temLeads ? "grid-cols-2" : "grid-cols-1"}`}>
+                    {/* Carteira */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block" />
-                        <span className="text-xs font-bold text-slate-300 tracking-wider">LEADS</span>
+                        <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                        <span className="text-xs font-bold text-slate-300 tracking-wider">CARTEIRA</span>
                       </div>
                       <CampoMeta
                         label="Meta" destaque
-                        value={formMetas[v.id]?.leads.meta ?? "0,00"}
-                        onChange={(val) => setMetaField(v.id, "leads", "meta", val)}
+                        value={formMetas[v.id]?.carteira.meta ?? "0,00"}
+                        onChange={(val) => setMetaField(v.id, "carteira", "meta", val)}
                       />
                       <CampoMeta
                         label="Super Meta"
-                        value={formMetas[v.id]?.leads.superMeta ?? "0,00"}
-                        onChange={(val) => setMetaField(v.id, "leads", "superMeta", val)}
+                        value={formMetas[v.id]?.carteira.superMeta ?? "0,00"}
+                        onChange={(val) => setMetaField(v.id, "carteira", "superMeta", val)}
                       />
                       <CampoMeta
                         label="Meta Amolim"
-                        value={formMetas[v.id]?.leads.metaAmolim ?? "0,00"}
-                        onChange={(val) => setMetaField(v.id, "leads", "metaAmolim", val)}
+                        value={formMetas[v.id]?.carteira.metaAmolim ?? "0,00"}
+                        onChange={(val) => setMetaField(v.id, "carteira", "metaAmolim", val)}
                       />
                     </div>
-                  )}
-                </div>
-              </div>
-            ))}
 
-            {ativos.length === 0 && (
-              <div className="col-span-2 flex flex-col items-center justify-center h-40 text-slate-500">
-                <Target size={32} className="mb-2 opacity-40" />
-                <p className="text-sm">Nenhum vendedor ativo.</p>
-              </div>
-            )}
+                    {/* Leads */}
+                    {v.temLeads && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block" />
+                          <span className="text-xs font-bold text-slate-300 tracking-wider">LEADS</span>
+                        </div>
+                        <CampoMeta
+                          label="Meta" destaque
+                          value={formMetas[v.id]?.leads.meta ?? "0,00"}
+                          onChange={(val) => setMetaField(v.id, "leads", "meta", val)}
+                        />
+                        <CampoMeta
+                          label="Super Meta"
+                          value={formMetas[v.id]?.leads.superMeta ?? "0,00"}
+                          onChange={(val) => setMetaField(v.id, "leads", "superMeta", val)}
+                        />
+                        <CampoMeta
+                          label="Meta Amolim"
+                          value={formMetas[v.id]?.leads.metaAmolim ?? "0,00"}
+                          onChange={(val) => setMetaField(v.id, "leads", "metaAmolim", val)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {ativos.length === 0 && (
+                <div className="col-span-2 flex flex-col items-center justify-center h-40 text-slate-500">
+                  <Target size={32} className="mb-2 opacity-40" />
+                  <p className="text-sm">Nenhum vendedor ativo.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -572,6 +641,7 @@ export default function SupervisorPage() {
           {ativos.length} vendedor{ativos.length !== 1 ? "es" : ""} ativos
           {deletar.size > 0 && ` — ${deletar.size} serão removidos`}
           {lista.some((v) => v._new && !deletar.has(v.id)) && " — novos incluídos"}
+          {" · "}<span className={mesSup === mesProxStr ? "text-amber-400" : "text-blue-400"}>{formatarMesAno(mesSup)}</span>
         </span>
         <button
           onClick={handleSalvar}
@@ -604,7 +674,6 @@ export default function SupervisorPage() {
             )}
 
             <div className="space-y-4">
-              {/* Nome */}
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nome de exibição</label>
                 <input
@@ -616,7 +685,6 @@ export default function SupervisorPage() {
                 />
               </div>
 
-              {/* Região */}
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Região</label>
                 <input
@@ -628,7 +696,6 @@ export default function SupervisorPage() {
                 />
               </div>
 
-              {/* API Nome Carteira */}
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">API Nome — Carteira</label>
                 <input
@@ -641,7 +708,6 @@ export default function SupervisorPage() {
                 <p className="text-[11px] text-slate-500 mt-1">Nome exato do vendedor na API do ERP</p>
               </div>
 
-              {/* Tem Leads */}
               <div>
                 <label className="text-xs text-slate-400 mb-2 block">Tem Leads?</label>
                 <div className="flex gap-3">
@@ -661,7 +727,6 @@ export default function SupervisorPage() {
                 </div>
               </div>
 
-              {/* API Nome Leads */}
               {novoForm.temLeads && (
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">API Nome — Leads</label>
