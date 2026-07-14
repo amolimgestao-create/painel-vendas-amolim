@@ -259,7 +259,7 @@ export default function PainelGeral() {
             display: "inline-block",
           }}>
             <img
-              src="https://www.amolim.com.br/wp-content/uploads/2025/08/LOGO-AMOLIM-e1755694381428.png"
+              src="/logo-amolim.png"
               alt="Amolim"
               className="h-9 w-auto block"
             />
