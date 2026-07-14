@@ -24,7 +24,11 @@ const A_BLUE = "#1565C0"
 const A_BLUE_L = "#1E88E5"
 const A_GREEN = "#43A047"
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 function statusCor(pct: number) {
   if (pct >= 100) return { bar: "bg-green-500", text: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/40" }
@@ -318,8 +322,10 @@ export default function PainelGeral() {
 
       <main className="flex-1 min-h-0 px-5 py-4 flex flex-col gap-3 overflow-hidden">
         {error && (
-          <div className="text-center text-[#66BB6A] py-20 text-lg">
-            Erro ao carregar dados da API. Verifique a conexão com o servidor.
+          <div className="flex flex-col items-center justify-center flex-1 gap-2">
+            <p className="text-[#66BB6A] text-lg font-semibold">Erro ao carregar dados da API</p>
+            <p className="text-slate-500 text-sm">Verifique a conexão com o servidor ERP</p>
+            <code className="text-xs text-slate-600 mt-1">{String(error)}</code>
           </div>
         )}
 
