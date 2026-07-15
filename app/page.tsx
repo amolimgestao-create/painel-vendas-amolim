@@ -3,7 +3,7 @@
 import useSWR from "swr"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
 import { formatarMoeda, formatarMesAno, getDiaAtual, getMesAtualStr, getMesRange } from "@/lib/utils"
 import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
@@ -245,6 +245,21 @@ export default function PainelGeral() {
   const n = isLoading ? vendedoresDoMes.length : stats.length
   const compact = n > 3
 
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener("fullscreenchange", handler)
+    document.addEventListener("webkitfullscreenchange", handler)
+    return () => {
+      document.removeEventListener("fullscreenchange", handler)
+      document.removeEventListener("webkitfullscreenchange", handler)
+    }
+  }, [])
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
+    else document.exitFullscreen?.()
+  }
+
   return (
     <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
       {/* Header */}
@@ -301,11 +316,20 @@ export default function PainelGeral() {
           </div>
         )}
 
-        <div className="text-right">
-          <div className="text-xl font-mono text-white">{agora.toLocaleTimeString("pt-BR")}</div>
-          <div className="text-xs text-slate-400">
-            {agora.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <div className="text-xl font-mono text-white">{agora.toLocaleTimeString("pt-BR")}</div>
+            <div className="text-xs text-slate-400">
+              {agora.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+            </div>
           </div>
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors text-slate-300"
+            title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
+          >
+            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+          </button>
         </div>
       </header>
 
@@ -322,8 +346,8 @@ export default function PainelGeral() {
         {(() => {
           const cols =
             n <= 2 ? "sm:grid-cols-2" :
-            n <= 4 ? "sm:grid-cols-2 lg:grid-cols-4" :
-            n === 5 ? "sm:grid-cols-3 lg:grid-cols-5" :
+            n <= 4 ? "sm:grid-cols-4" :
+            n === 5 ? "sm:grid-cols-5" :
             n <= 6 ? "sm:grid-cols-3" :
             n <= 8 ? "sm:grid-cols-4" : "sm:grid-cols-5"
           const gap = compact ? "gap-2" : "gap-3"
