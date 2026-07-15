@@ -3,7 +3,7 @@
 import useSWR from "swr"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
-import { Maximize2, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
 import { formatarMoeda, formatarMesAno, getDiaAtual, getMesAtualStr, getMesRange } from "@/lib/utils"
 import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
@@ -239,11 +239,6 @@ export default function PainelGeral() {
     ? buildTeamChart(stats, metaGeral, diasNoMes, diasMostrar, mesStr)
     : []
 
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen()
-    else document.exitFullscreen()
-  }
-
   const corPct = pctGeral >= 100 ? "text-green-400" : pctGeral >= 80 ? "text-yellow-400" : "text-[#66BB6A]"
   const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-[#2E7D32]"
 
@@ -306,20 +301,11 @@ export default function PainelGeral() {
           </div>
         )}
 
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-xl font-mono text-white">{agora.toLocaleTimeString("pt-BR")}</div>
-            <div className="text-xs text-slate-400">
-              {agora.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-            </div>
+        <div className="text-right">
+          <div className="text-xl font-mono text-white">{agora.toLocaleTimeString("pt-BR")}</div>
+          <div className="text-xs text-slate-400">
+            {agora.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
           </div>
-          <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors text-slate-300"
-            title="Tela cheia"
-          >
-            <Maximize2 size={18} />
-          </button>
         </div>
       </header>
 
