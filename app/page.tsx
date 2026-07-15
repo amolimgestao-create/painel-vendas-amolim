@@ -248,7 +248,7 @@ export default function PainelGeral() {
   const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-[#2E7D32]"
 
   const n = isLoading ? vendedoresDoMes.length : stats.length
-  const compact = n > 5
+  const compact = n > 3
 
   return (
     <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
