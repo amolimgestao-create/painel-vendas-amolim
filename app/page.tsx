@@ -70,7 +70,7 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
 
   if (compact) {
     return (
-      <div className="px-2.5 py-1.5 flex flex-col gap-0.5">
+      <div className="px-2.5 py-1 flex flex-col gap-0.5">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-bold tracking-widest text-slate-400">{label}</span>
           {semMeta ? <span className="text-[10px] text-slate-500">sem meta</span>
@@ -129,7 +129,7 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
     <Link href={`/vendedor/${stats.id}`} className="block">
       {compact ? (
         <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-          <div className={`px-3 py-1.5 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
+          <div className={`px-3 py-1 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
             <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
             <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
             <span className="text-sm font-black text-white ml-auto">{formatarMoeda(stats.totalGeral)}</span>
@@ -166,10 +166,10 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
 function SkeletonCard({ compact }: { compact: boolean }) {
   return compact ? (
     <div className="bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden animate-pulse">
-      <div className="px-3 py-1.5 border-b border-slate-700"><div className="h-4 bg-slate-700 rounded w-1/2" /></div>
+      <div className="px-3 py-1 border-b border-slate-700"><div className="h-4 bg-slate-700 rounded w-1/2" /></div>
       <div className="grid grid-cols-2 divide-x divide-slate-700">
-        <div className="px-2.5 py-1.5 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
-        <div className="px-2.5 py-1.5 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
+        <div className="px-2.5 py-1 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
+        <div className="px-2.5 py-1 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
       </div>
     </div>
   ) : (
@@ -247,10 +247,13 @@ export default function PainelGeral() {
   const corPct = pctGeral >= 100 ? "text-green-400" : pctGeral >= 80 ? "text-yellow-400" : "text-[#66BB6A]"
   const barPct = pctGeral >= 100 ? "bg-green-500" : pctGeral >= 80 ? "bg-yellow-400" : "bg-[#2E7D32]"
 
+  const n = isLoading ? vendedoresDoMes.length : stats.length
+  const compact = n > 5
+
   return (
     <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-8 py-2.5 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur shrink-0">
+      <header className={`flex items-center justify-between px-8 ${compact ? "py-1.5" : "py-2.5"} border-b border-slate-700/80 bg-slate-900/95 backdrop-blur shrink-0`}>
         <div>
           <div style={{
             background: "radial-gradient(ellipse 120% 200% at 50% 50%, rgba(255,255,255,0.92) 25%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.08) 80%, transparent 100%)",
@@ -320,7 +323,7 @@ export default function PainelGeral() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 px-5 py-4 flex flex-col gap-3 overflow-hidden">
+      <main className={`flex-1 min-h-0 px-5 ${compact ? "py-2" : "py-4"} flex flex-col ${compact ? "gap-2" : "gap-3"} overflow-hidden`}>
         {error && (
           <div className="flex flex-col items-center justify-center flex-1 gap-2">
             <p className="text-[#66BB6A] text-lg font-semibold">Erro ao carregar dados da API</p>
@@ -331,8 +334,6 @@ export default function PainelGeral() {
 
         {/* Cards dos vendedores */}
         {(() => {
-          const n = isLoading ? vendedoresDoMes.length : stats.length
-          const compact = n > 5
           const cols =
             n <= 2 ? "sm:grid-cols-2" :
             n <= 4 ? "sm:grid-cols-2 lg:grid-cols-4" :
@@ -359,8 +360,8 @@ export default function PainelGeral() {
         {!isLoading && stats.length > 0 && (
           <div className="flex flex-col gap-3 flex-1 min-h-0">
             {/* Barra de progresso geral */}
-            <div className="bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700 shrink-0">
-              <div className="flex justify-between items-center mb-1.5">
+            <div className={`bg-slate-800 rounded-2xl px-4 ${compact ? "py-1.5" : "py-3"} border border-slate-700 shrink-0`}>
+              <div className={`flex justify-between items-center ${compact ? "mb-1" : "mb-1.5"}`}>
                 <span className="text-sm text-slate-400 font-medium">Progresso geral da equipe</span>
                 <span className={`text-sm font-bold ${corPct}`}>
                   {formatarMoeda(totalGeral)} — {pctGeral.toFixed(1)}% da meta de {formatarMoeda(metaGeral)}
@@ -377,7 +378,7 @@ export default function PainelGeral() {
             {/* Gráfico de progressão diária */}
             {teamChartData.length > 0 && (
               <div className="bg-slate-800 rounded-2xl px-4 pt-3 pb-0 border border-slate-700 flex-1 min-h-0 flex flex-col overflow-hidden">
-                <div className="mb-2 flex items-start justify-between shrink-0">
+                <div className={`${compact ? "mb-1" : "mb-2"} flex items-start justify-between shrink-0`}>
                   <div>
                     <h2 className="text-sm font-semibold text-white">Progressão diária da equipe</h2>
                     <p className="text-xs text-slate-500 mt-0.5">Acumulado realizado vs. ritmo esperado da meta</p>
@@ -393,7 +394,7 @@ export default function PainelGeral() {
                     </span>
                   </div>
                 </div>
-                <div className="flex-1 min-h-[120px] relative">
+                <div className="flex-1 min-h-0 relative">
                   <div className="absolute inset-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <ComposedChart data={teamChartData} margin={{ top: 24, right: 115, left: 10, bottom: 0 }}>
