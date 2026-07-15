@@ -334,14 +334,14 @@ export default function PainelGeral() {
           const n = isLoading ? vendedoresDoMes.length : stats.length
           const compact = n > 5
           const cols =
-            n <= 2 ? "xl:grid-cols-2" :
-            n <= 4 ? "xl:grid-cols-4" :
-            n === 5 ? "xl:grid-cols-5" :
-            n <= 6 ? "xl:grid-cols-3" :
-            n <= 8 ? "xl:grid-cols-4" : "xl:grid-cols-5"
+            n <= 2 ? "sm:grid-cols-2" :
+            n <= 4 ? "sm:grid-cols-2 lg:grid-cols-4" :
+            n === 5 ? "sm:grid-cols-3 lg:grid-cols-5" :
+            n <= 6 ? "sm:grid-cols-3" :
+            n <= 8 ? "sm:grid-cols-4" : "sm:grid-cols-5"
           const gap = compact ? "gap-2" : "gap-3"
           return (
-            <div className={`grid grid-cols-1 lg:grid-cols-2 ${cols} ${gap} shrink-0`}>
+            <div className={`grid grid-cols-1 ${cols} ${gap} shrink-0`}>
               {isLoading
                 ? Array.from({ length: vendedoresDoMes.length }).map((_, i) => <SkeletonCard key={i} compact={compact} />)
                 : stats.map((s) => (
