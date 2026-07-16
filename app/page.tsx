@@ -2,7 +2,7 @@
 
 import useSWR from "swr"
 import dynamic from "next/dynamic"
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
 import { formatarMoeda, formatarMesAno, getDiaAtual, getMesAtualStr, getMesRange } from "@/lib/utils"
@@ -62,11 +62,38 @@ function buildTeamChart(
   })
 }
 
+function useAutoFitFontSize(text: string, maxPx: number, minPx = 10) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const fit = () => {
+      let size = maxPx
+      el.style.fontSize = `${size}px`
+      while (el.scrollWidth > el.clientWidth && size > minPx) {
+        size -= 1
+        el.style.fontSize = `${size}px`
+      }
+    }
+
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [text, maxPx, minPx])
+
+  return ref
+}
+
 function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: string; compact: boolean }) {
   const pct = Math.min(bucket.percentualMeta, 100)
   const cor = statusCor(bucket.percentualMeta)
   const atingiu = bucket.percentualMeta >= 100
   const semMeta = bucket.meta === 0
+  const valorFormatado = formatarMoeda(bucket.totalFaturado)
+  const valorRef = useAutoFitFontSize(valorFormatado, compact ? 16 : 24)
 
   if (compact) {
     return (
@@ -77,7 +104,7 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
             : atingiu ? <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full shrink-0">META ✓</span>
             : <span className={`text-[10px] font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
         </div>
-        <div className="text-base font-extrabold text-white leading-tight truncate">{formatarMoeda(bucket.totalFaturado)}</div>
+        <div ref={valorRef} className="font-extrabold text-white leading-tight whitespace-nowrap overflow-hidden">{valorFormatado}</div>
         <div className="w-full bg-slate-700 rounded-full h-1">
           <div className={`h-1 rounded-full transition-all ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
         </div>
@@ -98,7 +125,7 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
           : atingiu ? <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">META ✓</span>
           : <span className={`text-xs font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
       </div>
-      <div className="text-2xl font-extrabold text-white leading-none truncate">{formatarMoeda(bucket.totalFaturado)}</div>
+      <div ref={valorRef} className="font-extrabold text-white leading-none whitespace-nowrap overflow-hidden">{valorFormatado}</div>
       <div className="w-full bg-slate-700 rounded-full h-2.5">
         <div className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
       </div>
@@ -130,9 +157,9 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
       {compact ? (
         <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
           <div className={`px-3 py-1 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
-            <span className="text-sm font-extrabold text-white leading-none">{stats.nomeExibicao}</span>
+            <span className="text-sm font-extrabold text-white leading-none min-w-0 truncate">{stats.nomeExibicao}</span>
             <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
-            <span className="text-sm font-black text-white ml-auto">{formatarMoeda(stats.totalGeral)}</span>
+            <span className="text-sm font-black text-white ml-auto shrink-0">{formatarMoeda(stats.totalGeral)}</span>
             <span className="text-xs text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
             <span className={`text-sm font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
             {naMeta && <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
@@ -141,12 +168,12 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
         </div>
       ) : (
         <div className={`bg-slate-800 rounded-2xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-          <div className={`px-5 py-3 flex items-center justify-between ${cor.bg} border-b border-slate-700`}>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold text-white">{stats.nomeExibicao}</span>
-              <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded">R{stats.regiao}</span>
+          <div className={`px-5 py-3 flex items-center justify-between gap-2 ${cor.bg} border-b border-slate-700`}>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-lg font-extrabold text-white truncate">{stats.nomeExibicao}</span>
+              <span className="text-xs text-slate-400 border border-slate-600 px-1.5 py-0.5 rounded shrink-0">R{stats.regiao}</span>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <div className={`text-xl font-black ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</div>
               <div className="text-xs text-slate-400">do total</div>
             </div>
