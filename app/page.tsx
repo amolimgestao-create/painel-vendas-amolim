@@ -62,7 +62,7 @@ function buildTeamChart(
   })
 }
 
-function useAutoFitFontSize(text: string, maxPx: number, minPx = 10) {
+function useAutoFitFontSize(deps: React.DependencyList, maxPx: number, minPx = 8) {
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -82,7 +82,8 @@ function useAutoFitFontSize(text: string, maxPx: number, minPx = 10) {
     const ro = new ResizeObserver(fit)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [text, maxPx, minPx])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps)
 
   return ref
 }
@@ -93,24 +94,27 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
   const atingiu = bucket.percentualMeta >= 100
   const semMeta = bucket.meta === 0
   const valorFormatado = formatarMoeda(bucket.totalFaturado)
-  const valorRef = useAutoFitFontSize(valorFormatado, compact ? 16 : 24)
+  const faltaFormatada = formatarMoeda(bucket.faltaParaMeta)
+  const valorRef = useAutoFitFontSize([valorFormatado], compact ? 16 : 24)
+  const topRowRef = useAutoFitFontSize([label, semMeta, atingiu, bucket.percentualMeta], compact ? 10 : 12)
+  const faltaRef = useAutoFitFontSize([faltaFormatada], compact ? 10 : 12)
 
   if (compact) {
     return (
       <div className="px-2.5 py-1 flex flex-col gap-0.5 min-w-0 overflow-hidden">
-        <div className="flex items-center justify-between gap-1">
-          <span className="text-[10px] font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
-          {semMeta ? <span className="text-[10px] text-slate-500 shrink-0">sem meta</span>
-            : atingiu ? <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full shrink-0">META ✓</span>
-            : <span className={`text-[10px] font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
+        <div ref={topRowRef} className="flex items-center justify-between gap-1 whitespace-nowrap overflow-hidden" style={{ fontSize: 10 }}>
+          <span className="font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
+          {semMeta ? <span className="text-slate-500 shrink-0">sem meta</span>
+            : atingiu ? <span className="font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full shrink-0">META ✓</span>
+            : <span className={`font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
         </div>
         <div ref={valorRef} className="font-extrabold text-white leading-tight whitespace-nowrap overflow-hidden">{valorFormatado}</div>
         <div className="w-full bg-slate-700 rounded-full h-1">
           <div className={`h-1 rounded-full transition-all ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
         </div>
         {!semMeta && !atingiu && (
-          <div className="text-[10px] text-slate-500 truncate">
-            faltam <span className={`font-semibold ${cor.text}`}>{formatarMoeda(bucket.faltaParaMeta)}</span>
+          <div ref={faltaRef} className="text-slate-500 whitespace-nowrap overflow-hidden" style={{ fontSize: 10 }}>
+            faltam <span className={`font-semibold ${cor.text}`}>{faltaFormatada}</span>
           </div>
         )}
       </div>
@@ -119,19 +123,23 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
 
   return (
     <div className="p-4 flex flex-col gap-2 min-w-0 overflow-hidden">
-      <div className="flex items-center justify-between gap-1">
-        <span className="text-xs font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
-        {semMeta ? <span className="text-xs text-slate-500">sem meta</span>
-          : atingiu ? <span className="text-xs font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">META ✓</span>
-          : <span className={`text-xs font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
+      <div ref={topRowRef} className="flex items-center justify-between gap-1 whitespace-nowrap overflow-hidden" style={{ fontSize: 12 }}>
+        <span className="font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
+        {semMeta ? <span className="text-slate-500 shrink-0">sem meta</span>
+          : atingiu ? <span className="font-bold text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">META ✓</span>
+          : <span className={`font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
       </div>
       <div ref={valorRef} className="font-extrabold text-white leading-none whitespace-nowrap overflow-hidden">{valorFormatado}</div>
       <div className="w-full bg-slate-700 rounded-full h-2.5">
         <div className={`h-2.5 rounded-full transition-all duration-700 ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
       </div>
-      <div className="flex flex-col gap-0.5 text-xs">
-        <span className="text-slate-500 truncate">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
-        {!atingiu && !semMeta && <span className={`font-semibold truncate ${cor.text}`}>faltam {formatarMoeda(bucket.faltaParaMeta)}</span>}
+      <div className="flex flex-col gap-0.5">
+        <span className="text-xs text-slate-500 truncate">{semMeta ? "—" : `Meta: ${formatarMoeda(bucket.meta)}`}</span>
+        {!atingiu && !semMeta && (
+          <div ref={faltaRef} className={`font-semibold whitespace-nowrap overflow-hidden ${cor.text}`} style={{ fontSize: 12 }}>
+            faltam {faltaFormatada}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -142,6 +150,10 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
   const naMeta = temLeads
     ? stats.carteira.percentualMeta >= 100 && stats.leads.percentualMeta >= 100
     : stats.carteira.percentualMeta >= 100
+  const headerRef = useAutoFitFontSize(
+    [stats.nomeExibicao, stats.regiao, stats.totalGeral, stats.metaTotal, stats.percentualMetaTotal, naMeta],
+    14
+  )
 
   const buckets = temLeads ? (
     <div className="grid grid-cols-2 divide-x divide-slate-700 [&>*]:min-w-0">
@@ -156,13 +168,17 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
     <Link href={`/vendedor/${stats.id}`} className="block">
       {compact ? (
         <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-          <div className={`px-3 py-1 flex items-center gap-2 ${cor.bg} border-b border-slate-700`}>
-            <span className="text-sm font-extrabold text-white leading-none min-w-0 truncate">{stats.nomeExibicao}</span>
-            <span className="text-[10px] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
-            <span className="text-sm font-black text-white ml-auto shrink-0">{formatarMoeda(stats.totalGeral)}</span>
-            <span className="text-xs text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
-            <span className={`text-sm font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
-            {naMeta && <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
+          <div
+            ref={headerRef}
+            className={`px-3 py-1 flex items-center gap-2 whitespace-nowrap overflow-hidden ${cor.bg} border-b border-slate-700`}
+            style={{ fontSize: 14 }}
+          >
+            <span className="font-extrabold text-white leading-none shrink-0">{stats.nomeExibicao}</span>
+            <span className="text-[0.7em] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
+            <span className="font-black text-white ml-auto shrink-0">{formatarMoeda(stats.totalGeral)}</span>
+            <span className="text-[0.85em] text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
+            <span className={`font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
+            {naMeta && <span className="text-[0.7em] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
           </div>
           {buckets}
         </div>
