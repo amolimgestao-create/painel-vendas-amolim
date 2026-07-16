@@ -181,24 +181,6 @@
         "superMeta": 7875,
         "metaAmolim": 8308.13
       }
-    },
-    {
-      "id": "teste",
-      "nomeExibicao": "Teste",
-      "regiao": 4,
-      "temLeads": false,
-      "carteira": {
-        "apiNome": "REGIAO 4 CARTEIRA",
-        "meta": 0,
-        "superMeta": 0,
-        "metaAmolim": 0
-      },
-      "leads": {
-        "apiNome": "REGIAO 4 CARTEIRA",
-        "meta": 0,
-        "superMeta": 0,
-        "metaAmolim": 0
-      }
     }
   ]
 }
