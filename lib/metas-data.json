@@ -117,9 +117,9 @@
       "temLeads": false,
       "carteira": {
         "apiNome": "REGIAO 0 CARTEIRA",
-        "meta": 0,
-        "superMeta": 0,
-        "metaAmolim": 0
+        "meta": 62000,
+        "superMeta": 65100,
+        "metaAmolim": 68680.5
       },
       "leads": {
         "apiNome": "",
@@ -135,9 +135,9 @@
       "temLeads": true,
       "carteira": {
         "apiNome": "REGIAO 1 CARTEIRA",
-        "meta": 120512,
-        "superMeta": 126537.6,
-        "metaAmolim": 133497.17
+        "meta": 126607,
+        "superMeta": 132937.35,
+        "metaAmolim": 140248.9
       },
       "leads": {
         "apiNome": "REGIAO 1 LEADS",
@@ -153,15 +153,15 @@
       "temLeads": true,
       "carteira": {
         "apiNome": "REGIAO 2 CARTEIRA",
-        "meta": 6300,
-        "superMeta": 6615,
-        "metaAmolim": 6978.83
+        "meta": 54534,
+        "superMeta": 57260.7,
+        "metaAmolim": 60410.04
       },
       "leads": {
         "apiNome": "REGIAO 2 LEADS",
-        "meta": 15000,
-        "superMeta": 15750,
-        "metaAmolim": 16616.25
+        "meta": 10000,
+        "superMeta": 10500,
+        "metaAmolim": 11077.5
       }
     },
     {
@@ -171,9 +171,9 @@
       "temLeads": true,
       "carteira": {
         "apiNome": "REGIAO 3 CARTEIRA",
-        "meta": 128270,
-        "superMeta": 134683.5,
-        "metaAmolim": 142091.09
+        "meta": 133995,
+        "superMeta": 140694.75,
+        "metaAmolim": 148432.96
       },
       "leads": {
         "apiNome": "REGIAO 3 LEADS",
