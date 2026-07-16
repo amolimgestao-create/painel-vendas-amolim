@@ -3,7 +3,7 @@
 import useSWR from "swr"
 import dynamic from "next/dynamic"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react"
+import { Maximize2, Minimize2 } from "lucide-react"
 import { processarPedidos } from "@/lib/processarPedidos"
 import { formatarMoeda, formatarMesAno, getDiaAtual, getMesAtualStr, getMesRange } from "@/lib/utils"
 import { Pedido, BucketStats, VendedorStats } from "@/lib/types"
@@ -156,7 +156,7 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
   )
 
   const buckets = temLeads ? (
-    <div className="grid grid-cols-2 divide-x divide-slate-700 [&>*]:min-w-0">
+    <div className="flex flex-col divide-y divide-slate-700">
       <BucketMini bucket={stats.carteira} label="CARTEIRA" compact={compact} />
       <BucketMini bucket={stats.leads} label="LEADS" compact={compact} />
     </div>
@@ -173,7 +173,7 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
             className={`px-3 py-1 flex items-center gap-2 whitespace-nowrap overflow-hidden ${cor.bg} border-b border-slate-700`}
             style={{ fontSize: 14 }}
           >
-            <span className="font-extrabold text-white leading-none shrink-0">{stats.nomeExibicao}</span>
+            <span className="text-[1.2em] font-extrabold text-white leading-none shrink-0">{stats.nomeExibicao}</span>
             <span className="text-[0.7em] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
             <span className="font-black text-white ml-auto shrink-0">{formatarMoeda(stats.totalGeral)}</span>
             <span className="text-[0.85em] text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
@@ -210,7 +210,7 @@ function SkeletonCard({ compact }: { compact: boolean }) {
   return compact ? (
     <div className="bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden animate-pulse">
       <div className="px-3 py-1 border-b border-slate-700"><div className="h-4 bg-slate-700 rounded w-1/2" /></div>
-      <div className="grid grid-cols-2 divide-x divide-slate-700">
+      <div className="flex flex-col divide-y divide-slate-700">
         <div className="px-2.5 py-1 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
         <div className="px-2.5 py-1 space-y-1"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-4 bg-slate-700 rounded w-2/3" /><div className="h-1 bg-slate-700 rounded" /></div>
       </div>
@@ -219,7 +219,7 @@ function SkeletonCard({ compact }: { compact: boolean }) {
     <div className="bg-slate-800 rounded-2xl border-2 border-slate-700 overflow-hidden animate-pulse">
       <div className="px-5 py-3 border-b border-slate-700"><div className="h-5 bg-slate-700 rounded w-1/3" /></div>
       <div className="px-5 py-3 border-b border-slate-700"><div className="h-8 bg-slate-700 rounded w-1/2" /></div>
-      <div className="grid grid-cols-2 divide-x divide-slate-700">
+      <div className="flex flex-col divide-y divide-slate-700">
         <div className="p-4 space-y-2"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-6 bg-slate-700 rounded w-2/3" /><div className="h-2 bg-slate-700 rounded" /></div>
         <div className="p-4 space-y-2"><div className="h-3 bg-slate-700 rounded w-1/3" /><div className="h-6 bg-slate-700 rounded w-2/3" /><div className="h-2 bg-slate-700 rounded" /></div>
       </div>
@@ -232,19 +232,12 @@ export default function PainelGeral() {
   const intervalo = parseInt(process.env.NEXT_PUBLIC_REFRESH_INTERVAL || "300000")
 
   const mesAtualStr = getMesAtualStr()
-  const [mesSelecionado, setMesSelecionado] = useState(mesAtualStr)
 
-  // Meses disponíveis = histórico de metas até o mês atual (sem meses futuros)
-  const mesesDisponiveis = Object.keys(HISTORICO_METAS).filter((m) => m <= mesAtualStr).sort()
-  const idxMes = mesesDisponiveis.indexOf(mesSelecionado)
-  const podePrev = idxMes > 0
-  const podeNext = idxMes < mesesDisponiveis.length - 1
-
-  const { periodoIni, periodoFim, mesStr, diasNoMes, isCurrentMonth } = getMesRange(mesSelecionado)
+  const { periodoIni, periodoFim, mesStr, diasNoMes, isCurrentMonth } = getMesRange(mesAtualStr)
   const diaAtual = getDiaAtual()
   const diasMostrar = isCurrentMonth ? diaAtual : diasNoMes
 
-  const vendedoresDoMes = HISTORICO_METAS[mesSelecionado] ?? VENDEDORES
+  const vendedoresDoMes = HISTORICO_METAS[mesAtualStr] ?? VENDEDORES
   const vendedorConfigs = new Map(vendedoresDoMes.map((v) => [v.id, v]))
 
   useEffect(() => {
@@ -301,7 +294,7 @@ export default function PainelGeral() {
   return (
     <div className="h-screen overflow-hidden bg-slate-900 flex flex-col" style={{ borderTop: `4px solid ${A_BLUE}` }}>
       {/* Header */}
-      <header className={`flex items-center justify-between px-8 ${compact ? "py-1.5" : "py-2.5"} border-b border-slate-700/80 bg-slate-900/95 backdrop-blur shrink-0`}>
+      <header className={`flex items-center justify-between px-8 ${compact ? "py-1" : "py-1.5"} border-b border-slate-700/80 bg-slate-900/95 backdrop-blur shrink-0`}>
         <div>
           <div style={{
             background: "radial-gradient(ellipse 120% 200% at 50% 50%, rgba(255,255,255,0.92) 25%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.08) 80%, transparent 100%)",
@@ -315,26 +308,9 @@ export default function PainelGeral() {
               className="h-9 w-auto block"
             />
           </div>
-          {/* Navegação de meses */}
-          <div className="flex items-center gap-1 mt-1.5">
-            <button
-              onClick={() => podePrev && setMesSelecionado(mesesDisponiveis[idxMes - 1])}
-              disabled={!podePrev}
-              className="p-0.5 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft size={13} />
-            </button>
-            <span className="text-xs text-slate-400">
-              Painel Comercial — {formatarMesAno(mesSelecionado)}
-            </span>
-            <button
-              onClick={() => podeNext && setMesSelecionado(mesesDisponiveis[idxMes + 1])}
-              disabled={!podeNext}
-              className="p-0.5 text-slate-500 hover:text-slate-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight size={13} />
-            </button>
-          </div>
+          <span className="text-xs text-slate-400 mt-0.5 block">
+            Painel Comercial — {formatarMesAno(mesAtualStr)}
+          </span>
         </div>
 
         {!isLoading && stats.length > 0 && (
@@ -408,16 +384,16 @@ export default function PainelGeral() {
         {!isLoading && stats.length > 0 && (
           <div className="flex flex-col gap-3 flex-1 min-h-0">
             {/* Barra de progresso geral */}
-            <div className={`bg-slate-800 rounded-2xl px-4 ${compact ? "py-1.5" : "py-3"} border border-slate-700 shrink-0`}>
-              <div className={`flex justify-between items-center ${compact ? "mb-1" : "mb-1.5"}`}>
-                <span className="text-sm text-slate-400 font-medium">Progresso geral da equipe</span>
-                <span className={`text-sm font-bold ${corPct}`}>
+            <div className="bg-slate-800 rounded-2xl px-4 py-1 border border-slate-700 shrink-0">
+              <div className="flex justify-between items-center mb-0.5">
+                <span className="text-xs text-slate-400 font-medium">Progresso geral da equipe</span>
+                <span className={`text-xs font-bold ${corPct}`}>
                   {formatarMoeda(totalGeral)} — {pctGeral.toFixed(1)}% da meta de {formatarMoeda(metaGeral)}
                 </span>
               </div>
-              <div className="w-full bg-slate-700 rounded-full h-2.5">
+              <div className="w-full bg-slate-700 rounded-full h-1.5">
                 <div
-                  className={`h-2.5 rounded-full transition-all duration-700 ${barPct}`}
+                  className={`h-1.5 rounded-full transition-all duration-700 ${barPct}`}
                   style={{ width: `${Math.min(pctGeral, 100)}%` }}
                 />
               </div>
@@ -532,18 +508,6 @@ export default function PainelGeral() {
           </div>
         )}
       </main>
-
-      <footer className="px-8 py-2 border-t border-slate-700 flex items-center justify-between text-xs text-slate-500 shrink-0">
-        <span>Atualiza a cada {intervalo / 60000} minutos</span>
-        <div className="flex items-center gap-5">
-          <Link href="/supervisor" className="hover:text-slate-300 transition-colors">
-            Supervisor
-          </Link>
-          <Link href="/vendedor" className="hover:text-slate-300 transition-colors">
-            Ver painel individual →
-          </Link>
-        </div>
-      </footer>
     </div>
   )
 }
