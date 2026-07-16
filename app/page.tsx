@@ -209,11 +209,6 @@ export default function PainelGeral() {
     return () => clearInterval(t)
   }, [])
 
-  useEffect(() => {
-    const t = setTimeout(() => location.reload(), 5 * 60 * 1000)
-    return () => clearTimeout(t)
-  }, [])
-
   const { data: pedidos, isLoading, error } = useSWR<Pedido[]>(
     `/api/pedidos?criacaoIni=${criacaoIni}&criacaoFim=${criacaoFim}`,
     fetcher,
