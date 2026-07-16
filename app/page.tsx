@@ -150,8 +150,9 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
   const naMeta = temLeads
     ? stats.carteira.percentualMeta >= 100 && stats.leads.percentualMeta >= 100
     : stats.carteira.percentualMeta >= 100
-  const headerRef = useAutoFitFontSize(
-    [stats.nomeExibicao, stats.regiao, stats.totalGeral, stats.metaTotal, stats.percentualMetaTotal, naMeta],
+  const nomeRef = useAutoFitFontSize([stats.nomeExibicao, stats.regiao], 18, 12)
+  const valoresRef = useAutoFitFontSize(
+    [stats.totalGeral, stats.metaTotal, stats.percentualMetaTotal, naMeta],
     14
   )
 
@@ -168,17 +169,17 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
     <Link href={`/vendedor/${stats.id}`} className="block">
       {compact ? (
         <div className={`bg-slate-800 rounded-xl border-2 ${cor.border} overflow-hidden hover:brightness-110 transition-all`}>
-          <div
-            ref={headerRef}
-            className={`px-3 py-1 flex items-center gap-2 whitespace-nowrap overflow-hidden ${cor.bg} border-b border-slate-700`}
-            style={{ fontSize: 14 }}
-          >
-            <span className="text-[1.2em] font-extrabold text-white leading-none shrink-0">{stats.nomeExibicao}</span>
-            <span className="text-[0.7em] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
-            <span className="font-black text-white ml-auto shrink-0">{formatarMoeda(stats.totalGeral)}</span>
-            <span className="text-[0.85em] text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
-            <span className={`font-black shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
-            {naMeta && <span className="text-[0.7em] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
+          <div className={`px-3 py-1 ${cor.bg} border-b border-slate-700`}>
+            <div ref={nomeRef} className="flex items-center gap-2 whitespace-nowrap overflow-hidden" style={{ fontSize: 18 }}>
+              <span className="font-extrabold text-white leading-none shrink-0">{stats.nomeExibicao}</span>
+              <span className="text-[0.65em] text-slate-400 border border-slate-600 px-1 rounded shrink-0">R{stats.regiao}</span>
+            </div>
+            <div ref={valoresRef} className="flex items-center gap-2 whitespace-nowrap overflow-hidden mt-0.5" style={{ fontSize: 14 }}>
+              <span className="font-black text-white shrink-0">{formatarMoeda(stats.totalGeral)}</span>
+              <span className="text-[0.85em] text-slate-400 shrink-0">/ {formatarMoeda(stats.metaTotal)}</span>
+              <span className={`font-black ml-auto shrink-0 ${cor.text}`}>{stats.percentualMetaTotal.toFixed(1)}%</span>
+              {naMeta && <span className="text-[0.7em] font-bold text-green-400 bg-green-500/15 px-1.5 rounded shrink-0">✓</span>}
+            </div>
           </div>
           {buckets}
         </div>
