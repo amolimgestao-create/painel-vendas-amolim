@@ -70,14 +70,14 @@ function BucketMini({ bucket, label, compact }: { bucket: BucketStats; label: st
 
   if (compact) {
     return (
-      <div className="px-2.5 py-1 flex flex-col gap-0.5">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold tracking-widest text-slate-400">{label}</span>
-          {semMeta ? <span className="text-[10px] text-slate-500">sem meta</span>
-            : atingiu ? <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full">META ✓</span>
-            : <span className={`text-[10px] font-bold ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
+      <div className="px-2.5 py-1 flex flex-col gap-0.5 min-w-0 overflow-hidden">
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] font-bold tracking-widest text-slate-400 shrink-0">{label}</span>
+          {semMeta ? <span className="text-[10px] text-slate-500 shrink-0">sem meta</span>
+            : atingiu ? <span className="text-[10px] font-bold text-green-400 bg-green-500/15 px-1.5 rounded-full shrink-0">META ✓</span>
+            : <span className={`text-[10px] font-bold shrink-0 ${cor.text}`}>{bucket.percentualMeta.toFixed(1)}%</span>}
         </div>
-        <div className="text-base font-extrabold text-white leading-tight">{formatarMoeda(bucket.totalFaturado)}</div>
+        <div className="text-base font-extrabold text-white leading-tight truncate">{formatarMoeda(bucket.totalFaturado)}</div>
         <div className="w-full bg-slate-700 rounded-full h-1">
           <div className={`h-1 rounded-full transition-all ${semMeta ? "bg-slate-600" : cor.bar}`} style={{ width: semMeta ? 0 : `${pct}%` }} />
         </div>
@@ -117,7 +117,7 @@ function CardVendedor({ stats, temLeads, compact }: { stats: VendedorStats; temL
     : stats.carteira.percentualMeta >= 100
 
   const buckets = temLeads ? (
-    <div className="grid grid-cols-2 divide-x divide-slate-700">
+    <div className="grid grid-cols-2 divide-x divide-slate-700 [&>*]:min-w-0">
       <BucketMini bucket={stats.carteira} label="CARTEIRA" compact={compact} />
       <BucketMini bucket={stats.leads} label="LEADS" compact={compact} />
     </div>
@@ -450,10 +450,12 @@ export default function PainelGeral() {
                           dot={(dotProps: any) => {
                             if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
                             const totalVal = Number(dotProps.payload?.total ?? 0)
+                            const metaVal = Number(dotProps.payload?.metaPace ?? 0)
+                            const yOffset = totalVal >= metaVal ? -6 : 16
                             return (
                               <g key={`d-${dotProps.index}`}>
                                 <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_BLUE_L} stroke="#0f172a" strokeWidth={2} />
-                                <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(totalVal)}</text>
+                                <text x={dotProps.cx + 10} y={dotProps.cy + yOffset} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(totalVal)}</text>
                               </g>
                             )
                           }}
@@ -468,10 +470,12 @@ export default function PainelGeral() {
                           dot={(dotProps: any) => {
                             if (dotProps.index !== teamChartData.length - 1) return <g key={`d-${dotProps.index}`} />
                             const metaVal = Number(dotProps.payload?.metaPace ?? 0)
+                            const totalVal = Number(dotProps.payload?.total ?? 0)
+                            const yOffset = metaVal > totalVal ? -6 : 16
                             return (
                               <g key={`d-${dotProps.index}`}>
                                 <circle cx={dotProps.cx} cy={dotProps.cy} r={4} fill={A_GREEN} stroke="#0f172a" strokeWidth={2} />
-                                <text x={dotProps.cx + 10} y={dotProps.cy + 4} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
+                                <text x={dotProps.cx + 10} y={dotProps.cy + yOffset} fill="white" fontSize={11} fontWeight="700">{formatarMoeda(metaVal)}</text>
                               </g>
                             )
                           }}
