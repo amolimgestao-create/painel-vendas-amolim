@@ -78,13 +78,13 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
   const intervalo = parseInt(process.env.NEXT_PUBLIC_REFRESH_INTERVAL || "300000")
 
   const { data: pedidosAtual, isLoading: loadAtual } = useSWR<Pedido[]>(
-    `/api/pedidos?criacaoIni=${mesAtual.criacaoIni}&criacaoFim=${mesAtual.criacaoFim}`,
+    `/api/pedidos?fechamentoIni=${mesAtual.periodoIni}&fechamentoFim=${mesAtual.periodoFim}`,
     fetcher,
     { refreshInterval: intervalo }
   )
 
   const { data: pedidosAnterior, isLoading: loadAnterior } = useSWR<Pedido[]>(
-    `/api/pedidos?criacaoIni=${mesAnterior.criacaoIni}&criacaoFim=${mesAnterior.criacaoFim}`,
+    `/api/pedidos?fechamentoIni=${mesAnterior.periodoIni}&fechamentoFim=${mesAnterior.periodoFim}`,
     fetcher
   )
 
@@ -160,7 +160,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
         </div>
         {!isLoading && statsAtual && (
           <div className="text-right">
-            <div className="text-xs text-slate-400 mb-1">Total {formatarMesAno(mesAtual.criacaoIni.substring(0, 7))}</div>
+            <div className="text-xs text-slate-400 mb-1">Total {formatarMesAno(mesAtual.periodoIni.substring(0, 7))}</div>
             <div className={`text-4xl font-black ${
               pctTotal >= 100 ? "text-green-400" : pctTotal >= 80 ? "text-yellow-400" : "text-[#66BB6A]"
             }`}>
@@ -384,7 +384,7 @@ export default function PainelVendedor({ params }: { params: Promise<{ id: strin
           {statsAnterior && (
             <div className="bg-slate-800 rounded-2xl p-5 border border-slate-700">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                Comparativo — {formatarMesAno(mesAnterior.criacaoIni.substring(0, 7))}
+                Comparativo — {formatarMesAno(mesAnterior.periodoIni.substring(0, 7))}
               </h3>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>

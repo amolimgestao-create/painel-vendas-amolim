@@ -224,7 +224,7 @@ export default function PainelGeral() {
   const podePrev = idxMes > 0
   const podeNext = idxMes < mesesDisponiveis.length - 1
 
-  const { criacaoIni, criacaoFim, mesStr, diasNoMes, isCurrentMonth } = getMesRange(mesSelecionado)
+  const { periodoIni, periodoFim, mesStr, diasNoMes, isCurrentMonth } = getMesRange(mesSelecionado)
   const diaAtual = getDiaAtual()
   const diasMostrar = isCurrentMonth ? diaAtual : diasNoMes
 
@@ -237,7 +237,7 @@ export default function PainelGeral() {
   }, [])
 
   const { data: pedidos, isLoading, error } = useSWR<Pedido[]>(
-    `/api/pedidos?criacaoIni=${criacaoIni}&criacaoFim=${criacaoFim}`,
+    `/api/pedidos?fechamentoIni=${periodoIni}&fechamentoFim=${periodoFim}`,
     fetcher,
     { refreshInterval: intervalo }
   )
