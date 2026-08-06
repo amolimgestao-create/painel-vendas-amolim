@@ -182,5 +182,79 @@
         "metaAmolim": 8308.13
       }
     }
+  ],
+  "2026-08": [
+    {
+      "id": "industria",
+      "nomeExibicao": "Indústria",
+      "regiao": 0,
+      "temLeads": false,
+      "carteira": {
+        "apiNome": "REGIAO 0 CARTEIRA",
+        "meta": 71000,
+        "superMeta": 74550,
+        "metaAmolim": 78650.25
+      },
+      "leads": {
+        "apiNome": "",
+        "meta": 0,
+        "superMeta": 0,
+        "metaAmolim": 0
+      }
+    },
+    {
+      "id": "natalia",
+      "nomeExibicao": "Natalia",
+      "regiao": 1,
+      "temLeads": true,
+      "carteira": {
+        "apiNome": "REGIAO 1 CARTEIRA",
+        "meta": 126607,
+        "superMeta": 132937.35,
+        "metaAmolim": 140248.9
+      },
+      "leads": {
+        "apiNome": "REGIAO 1 LEADS",
+        "meta": 7500,
+        "superMeta": 7875,
+        "metaAmolim": 8308.13
+      }
+    },
+    {
+      "id": "debora",
+      "nomeExibicao": "Débora",
+      "regiao": 2,
+      "temLeads": true,
+      "carteira": {
+        "apiNome": "REGIAO 2 CARTEIRA",
+        "meta": 54534,
+        "superMeta": 57260.7,
+        "metaAmolim": 60410.04
+      },
+      "leads": {
+        "apiNome": "REGIAO 2 LEADS",
+        "meta": 10000,
+        "superMeta": 10500,
+        "metaAmolim": 11077.5
+      }
+    },
+    {
+      "id": "kelly",
+      "nomeExibicao": "Kelly",
+      "regiao": 3,
+      "temLeads": true,
+      "carteira": {
+        "apiNome": "REGIAO 3 CARTEIRA",
+        "meta": 133995,
+        "superMeta": 140694.75,
+        "metaAmolim": 148432.96
+      },
+      "leads": {
+        "apiNome": "REGIAO 3 LEADS",
+        "meta": 7500,
+        "superMeta": 7875,
+        "metaAmolim": 8308.13
+      }
+    }
   ]
 }
