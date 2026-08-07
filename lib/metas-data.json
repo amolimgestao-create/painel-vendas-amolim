@@ -191,7 +191,7 @@
       "temLeads": false,
       "carteira": {
         "apiNome": "REGIAO 0 CARTEIRA",
-        "meta": 71000,
+        "meta": 75000,
         "superMeta": 74550,
         "metaAmolim": 78650.25
       },
@@ -209,7 +209,7 @@
       "temLeads": true,
       "carteira": {
         "apiNome": "REGIAO 1 CARTEIRA",
-        "meta": 126607,
+        "meta": 130000,
         "superMeta": 132937.35,
         "metaAmolim": 140248.9
       },
