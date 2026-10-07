@@ -375,9 +375,9 @@
       "temLeads": true,
       "carteira": {
         "apiNome": "REGIAO 2 CARTEIRA",
-        "meta": 61640,
-        "superMeta": 67872,
-        "metaAmolim": 71604.96
+        "meta": 61000,
+        "superMeta": 64050,
+        "metaAmolim": 67572.75
       },
       "leads": {
         "apiNome": "REGIAO 2 LEADS",
